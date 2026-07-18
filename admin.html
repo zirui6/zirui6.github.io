@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理后台登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo svg {
+            width: 52px;
+            height: 52px;
+            background: #0d1117;
+            border-radius: 14px;
+            padding: 10px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0d1117;
+            margin-top: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: #57606a;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #24292f;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d0d7de;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            background: #f6f8fa;
+        }
+
+        .form-group input:focus {
+            border-color: #0d1117;
+            box-shadow: 0 0 0 4px rgba(13, 17, 23, 0.12);
+            background: #ffffff;
+        }
+
+        .form-group input::placeholder {
+            color: #8b949e;
+        }
+
+        .error-msg {
+            color: #cf222e;
+            font-size: 13px;
+            font-weight: 500;
+            background: #ffebe9;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            display: none;
+            border-left: 4px solid #cf222e;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            background: #0d1117;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.25s, transform 0.15s;
+            margin-top: 4px;
+        }
+
+        .btn-login:hover {
+            background: #1f2937;
+        }
+
+        .btn-login:active {
+            transform: scale(0.97);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .footer strong {
+            color: #0d1117;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 32px 24px 28px;
+            }
+            .logo h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <h1>管理后台</h1>
+            <p>请输入管理员凭证</p>
+        </div>
+
+        <div class="error-msg" id="errorMsg">❌ 用户名或密码错误，请重试</div>
+
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" placeholder="请输入用户名" required autofocus />
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="请输入密码" required />
+            </div>
+            <button type="submit" class="btn-login">登 录</button>
+        </form>
+
+        <div class="footer">
+            <span>演示账户：</span>
+            <strong>zirui</strong>（最高权限）｜<strong>admin</strong>（演示）
+        </div>
+    </div>
+
+    <script>
+        const users = {
+            "zirui": {
+                hash: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+                role: "superadmin",
+                displayName: "Zirui (超级管理员)"
+            },
+            "admin": {
+                hash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+                role: "demo",
+                displayName: "Admin (演示账户)"
+            }
+        };
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMsg = document.getElementById("errorMsg");
+            errorMsg.classList.remove("show");
+            if (!users[username]) {
+                errorMsg.textContent = "❌ 用户名不存在";
+                errorMsg.classList.add("show");
+                document.getElementById("password").value = "";
+                document.getElementById("password").focus();
+                return false;
+            }
+            const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(password));
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+            if (hashHex === users[username].hash) {
+                sessionStorage.setItem("isLoggedIn", "true");
+                sessionStorage.setItem("username", username);
+                sessionStorage.setItem("role", users[username].role);
+                sessionStorage.setItem("displayName", users[username].displayName);
+                window.location.href = "dashboard.html";
+            } else {
+                errorMsg.textContent = "❌ 密码错误，请重试";
+                errorMsg.classList.add("show");
+                document.getElementById("password").value = "";
+                document.getElementById("password").focus();
+            }
+            return false;
+        }
+
+        (function checkSession() {
+            if (sessionStorage.getItem("isLoggedIn") === "true") {
+                window.location.href = "dashboard.html";
+            }
+        })();
+    </script>
+
+</body>
+</html>
