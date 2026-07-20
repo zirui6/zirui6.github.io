@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN" id="htmlRoot">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>梓睿官网</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- ====== 顶栏 ====== -->
+    <header class="topbar" id="topbar">
+        <div class="left">
+            <div class="logo">
+            <img src="https://zirui6.github.io/logo1.png" alt="Logo" style="height:42px;width:auto;" />
+   <!--             Zirui<span>Hub</span>-->
+            </div>
+            <nav class="nav-func">
+                <a href="#logs">动态</a>
+                <a href="#products">产品</a>
+                <a href="#articles">文章</a>
+                <a href="#contact">联系</a>
+            </nav>
+        </div>
+        <div class="right">
+            <button class="settings-btn" id="settingsToggle" title="设置">⚙️</button>
+            <button class="login-btn" id="loginBtn">登录</button>
+        </div>
+    </header>
+
+    <!-- ====== 设置小条 ====== -->
+    <div class="settings-bar" id="settingsBar">
+        <div class="inner">
+            <span class="label">快捷设置</span>
+            <button class="pill" id="themeToggle">深色模式</button>
+            <span class="dot">•</span>
+            <button class="pill" id="notifToggle">通知</button>
+            <span class="dot">•</span>
+            <button class="pill" id="langToggle">语言 / 简体</button>
+            <span class="dot">•</span>
+            <button class="pill" id="statsToggle">数据统计</button>
+            <span class="dot">•</span>
+            <button class="pill" id="experimentToggle" style="border-color:var(--accent);color:var(--accent);">✨ 实验功能</button>
+        </div>
+    </div>
+
+    <!-- ====== 主容器 ====== -->
+    <main class="main">
+
+        <!-- 五栏滑动展示 -->
+        <section class="carousel-wrap" id="carousel">
+            <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-slide">
+                    <span class="slide-badge">✨ 新品首发</span>
+                    <h2>下一代数字体验平台</h2>
+                    <p>为品牌与用户之间建立无缝连接，重新定义内容展示与交互方式。</p>
+                    <a href="#" class="btn-detail">查看详情 →</a>
+                </div>
+                <div class="carousel-slide">
+                    <span class="slide-badge">🚀 性能升级</span>
+                    <h2>极速加载 · 流畅体验</h2>
+                    <p>采用边缘计算与智能缓存技术，页面加载速度提升 300%。</p>
+                    <a href="#" class="btn-detail">查看详情 →</a>
+                </div>
+                <div class="carousel-slide">
+                    <span class="slide-badge">🎨 设计系统</span>
+                    <h2>模块化设计语言</h2>
+                    <p>统一的视觉体系，让品牌表达更一致、更专业。</p>
+                    <a href="#" class="btn-detail">查看详情 →</a>
+                </div>
+                <div class="carousel-slide">
+                    <span class="slide-badge">📊 数据洞察</span>
+                    <h2>智能分析看板</h2>
+                    <p>实时了解用户行为，用数据驱动决策。</p>
+                    <a href="#" class="btn-detail">查看详情 →</a>
+                </div>
+                <div class="carousel-slide">
+                    <span class="slide-badge">🔒 安全可信</span>
+                    <h2>企业级安全防护</h2>
+                    <p>端到端加密 + 零信任架构，保障数据安全。</p>
+                    <a href="#" class="btn-detail">查看详情 →</a>
+                </div>
+            </div>
+            <button class="carousel-btn prev" id="carouselPrev">‹</button>
+            <button class="carousel-btn next" id="carouselNext">›</button>
+            <div class="carousel-dots" id="carouselDots"></div>
+        </section>
+
+        <!-- 最新动态（加宽展示） -->
+        <section class="section-block" id="logs">
+            <div class="section-header">
+                <h3><span class="icon">📰</span> <span data-key="logsTitle">最新动态</span></h3>
+                <button class="more-btn" data-target="logs"><span data-key="moreBtn">展示更多</span> →</button>
+            </div>
+            <div id="logContainer"></div>
+        </section>
+
+        <!-- 产品区 -->
+        <section class="section-block" id="products">
+            <div class="section-header">
+                <h3><span class="icon">📦</span> <span data-key="productsTitle">产品中心</span></h3>
+                <button class="more-btn" data-target="products"><span data-key="moreBtn">展示更多</span> →</button>
+            </div>
+            <div class="product-grid" id="productGrid"></div>
+        </section>
+
+        <!-- 文章区 -->
+        <section class="section-block" id="articles">
+            <div class="section-header">
+                <h3><span class="icon">📖</span> <span data-key="articlesTitle">精选文章</span></h3>
+                <button class="more-btn" data-target="articles"><span data-key="moreBtn">展示更多</span> →</button>
+            </div>
+            <div id="articleContainer"></div>
+        </section>
+
+        <!-- 联系方式 -->
+        <section class="section-block contact-section" id="contact">
+            <div class="contact-left">
+                <div class="contact-title"><span data-key="contactTitle">联系我们</span></div>
+                <div class="contact-item"><span class="icon">📧</span> <strong>邮箱：</strong>ruijmsgdcn@outlook.com</div>
+                <div class="contact-item"><span class="icon">📍</span> <strong>地址：</strong> 中国 · 广东 · 江门</div>
+                <div class="contact-item"><span class="icon">📞</span> <strong>电话：</strong> +86 </div>
+                <div class="contact-item"><span class="icon">🕐</span> <strong>工作时间：</strong> 待定</div>
+            </div>
+            <div class="contact-right">
+                <div class="qr-wrap">微信<br />扫码联系</div>
+                <div class="qr-label">官方微信服务号</div>
+            </div>
+            <div class="version-section">
+                <div>
+                    <div class="version-badge">v1.2.1</div>
+                    <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">Build 2026.07</div>
+                </div>
+                <ul class="changelog">
+                    <li>修复已知的兼容性问题</li>
+                    <li>此为首发版本！</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 底部 -->
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="#" style="color:var(--text-muted);">隐私政策</a>
+                <a href="#" style="color:var(--text-muted);">用户协议</a>
+                <a href="#" style="color:var(--text-muted);">用户建议</a>
+                <a href="#" style="color:var(--text-muted);">用户举报</a>
+                <a href="#" style="color:var(--text-muted);">AI使用须知</a>
+            </div>
+            <div class="footer-copy">
+                <span>Deepseek提供技术支持  提供后端支持</span>
+                <span>© 2026 Zirui Build. All Rights Reserved.</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- ====== 浮动导航 ====== -->
+    <div class="float-nav">
+        <button class="nav-btn" id="goTop" title="回到顶部">↑</button>
+        <button class="nav-btn" id="goBottom" title="跳转到底部">↓</button>
+        <button class="nav-btn contact-btn" id="contactToggle" title="联系方式">💬</button>
+    </div>
+
+    <!-- ====== 联系方式弹出框 ====== -->
+    <div class="contact-popup" id="contactPopup">
+        <button class="popup-close" id="popupClose">✕</button>
+        <div class="popup-title">📬 联系方式</div>
+        <div class="popup-item"><span class="icon">📧</span> contact@brandhub.com</div>
+        <div class="popup-item"><span class="icon">📞</span> +86 400-888-9999</div>
+        <div class="popup-item"><span class="icon">💬</span> 微信：BrandHub_Service</div>
+        <div class="popup-item"><span class="icon">🐦</span> @BrandHub_Official</div>
+    </div>
+
+    <!-- ====== 通知弹出框 ====== -->
+    <div class="notif-popup" id="notifPopup">
+        <button class="popup-close" id="notifClose">✕</button>
+        <div class="popup-title">🔔 通知中心</div>
+        <div class="notif-item">📌 你的收藏有新的更新</div>
+        <div class="notif-item">💬 收到一条新评论</div>
+        <div class="notif-item">📊 本周数据报告已生成</div>
+        <div class="notif-item">🎉 欢迎使用新功能：AI 助手</div>
+        <div style="margin-top:10px;font-size:13px;color:var(--text-muted);text-align:center;">— 暂无更多通知 —</div>
+    </div>
+
+    <!-- ====== 数据统计弹出框 ====== -->
+    <div class="stats-popup" id="statsPopup">
+        <button class="popup-close" id="statsClose">✕</button>
+        <div class="popup-title">📊 数据统计</div>
+        <div class="stats-item">📄 文章总数：<strong>12</strong></div>
+        <div class="stats-item">📦 产品总数：<strong>10</strong></div>
+        <div class="stats-item">📰 动态总数：<strong>12</strong></div>
+        <div class="stats-item">👥 页面访问量：<strong id="visitCount">0</strong></div>
+        <div style="margin-top:12px;font-size:13px;color:var(--text-muted);text-align:center;">数据更新于当前会话</div>
+    </div>
+
+    <!-- ====== JS ====== -->
+    <script src="script.js"></script>
+
+</body>
+</html>
