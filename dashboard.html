@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>仪表盘 · 梓睿</title>
+    <style>
+        /* ============================================================
+           重置 & 变量
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-body: #eef2f7;
+            --bg-card: #ffffff;
+            --text-primary: #0b1a2e;
+            --text-secondary: #2c3e5a;
+            --text-muted: #6b7f96;
+            --border-color: #dce3ed;
+            --shadow-md: 0 8px 40px rgba(11, 26, 46, 0.08);
+            --shadow-lg: 0 20px 64px rgba(11, 26, 46, 0.12);
+            --accent: #1a4b8c;
+            --accent-light: rgba(26, 75, 140, 0.08);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --transition: 0.3s ease;
+            --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        /* --- 深色模式 --- */
+        [data-theme="dark"] {
+            --bg-body: #0a1628;
+            --bg-card: #111d33;
+            --text-primary: #e8edf4;
+            --text-secondary: #a8b9d0;
+            --text-muted: #6b7f96;
+            --border-color: #1e3350;
+            --shadow-md: 0 8px 40px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 20px 64px rgba(0, 0, 0, 0.5);
+            --accent: #4a8fd8;
+            --accent-light: rgba(74, 143, 216, 0.12);
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        /* ============================================================
+           卡片容器
+           ============================================================ */
+        .dashboard {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 44px 40px 36px;
+            max-width: 720px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        /* ============================================================
+           头部
+           ============================================================ */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .header .icon {
+            font-size: 36px;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 24px;
+            padding-left: 52px;
+        }
+
+        /* ============================================================
+           用户信息条
+           ============================================================ */
+        .user-info {
+            background: var(--bg-body);
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 28px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: background var(--transition), border-color var(--transition);
+        }
+        .user-info .name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-info .name .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2da44e;
+        }
+        .user-info .badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 16px;
+            border-radius: 20px;
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid var(--border-color);
+        }
+
+        /* ============================================================
+           快速链接卡片区（整合所有后台链接）
+           ============================================================ */
+        .quick-links {
+            margin-bottom: 28px;
+        }
+        .quick-links .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .quick-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-body);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all var(--transition);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .quick-link:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        .quick-link .emoji {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .quick-link .label {
+            flex: 1;
+        }
+        .quick-link .arrow {
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: transform var(--transition);
+        }
+        .quick-link:hover .arrow {
+            transform: translateX(4px);
+            color: var(--accent);
+        }
+
+        /* ============================================================
+           下载区域
+           ============================================================ */
+        .download-section {
+            margin-bottom: 28px;
+        }
+        .download-section .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .download-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-body);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 8px;
+            transition: all var(--transition);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .download-item:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .download-item .info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .download-item .info .num {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 13px;
+            min-width: 28px;
+        }
+        .download-item .info .desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+        .download-item .info .desc .tag {
+            font-size: 11px;
+            background: var(--bg-card);
+            padding: 2px 12px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            margin-left: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .btn-download {
+            padding: 6px 20px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all var(--transition);
+            flex-shrink: 0;
+        }
+        .btn-download:hover {
+            opacity: 0.85;
+            transform: scale(1.02);
+        }
+        .btn-download.primary {
+            background: linear-gradient(135deg, #1a4b8c, #2c6ba8);
+        }
+        .btn-download.primary:hover {
+            box-shadow: 0 4px 16px rgba(26, 75, 140, 0.30);
+        }
+
+        /* ============================================================
+           底部按钮
+           ============================================================ */
+        .btn-logout {
+            padding: 12px 36px;
+            background: #cf222e;
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn-logout:hover {
+            background: #a0111f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(207, 34, 46, 0.30);
+        }
+        .btn-back {
+            display: inline-block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+            transition: color var(--transition);
+        }
+        .btn-back:hover {
+            color: var(--text-primary);
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+           响应式
+           ============================================================ */
+        @media (max-width: 600px) {
+            .dashboard {
+                padding: 28px 18px 24px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+            .subtitle {
+                padding-left: 0;
+            }
+            .quick-grid {
+                grid-template-columns: 1fr;
+            }
+            .download-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .download-item .info {
+                min-width: unset;
+            }
+            .btn-download {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+
+        <!-- ====== 头部 ====== -->
+        <div class="header">
+            <span class="icon">📁</span>
+            <h1>仪表盘</h1>
+        </div>
+        <p class="subtitle">欢迎回到管理后台</p>
+
+        <!-- ====== 用户信息 ====== -->
+        <div class="user-info">
+            <span class="name"><span class="dot"></span> <span id="displayUser">—</span></span>
+            <span class="badge" id="roleBadge">—</span>
+        </div>
+
+        <!-- ====== 快速链接（整合后的后台入口） ====== -->
+        <div class="quick-links">
+            <div class="section-title">🚀 快捷入口</div>
+            <div class="quick-grid">
+                <a href="https://supabase.com/dashboard/project/fzvgkvvxxzegfwszeztes" target="_blank" class="quick-link">
+                    <span class="emoji">🛢️</span>
+                    <span class="label">Supabase 后台</span>
+                    <span class="arrow">→</span>
+                </a>
+                <a href="https://supabase.com/dashboard/project/fzvgkvvxxzegfwszeztes/settings/general" target="_blank" class="quick-link">
+                    <span class="emoji">⚙️</span>
+                    <span class="label">API 地址设置</span>
+                    <span class="arrow">→</span>
+                </a>
+                <a href="https://github.com" target="_blank" class="quick-link">
+                    <span class="emoji">🐙</span>
+                    <span class="label">GitHub 前台</span>
+                    <span class="arrow">→</span>
+                </a>
+                <a href="https://supabase.com/" target="_blank" class="quick-link">
+                    <span class="emoji">📊</span>
+                    <span class="label">Supabase 官网</span>
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ====== 下载区域 ====== -->
+        <div class="download-section">
+            <div class="section-title">📥 文件下载</div>
+
+            <div class="download-item">
+                <div class="info">
+                    <span class="num">#1</span>
+                    <span class="desc">4275.com/55etdq</span>
+                </div>
+                <a href="https://4275.com/55etdq" target="_blank" class="btn-download primary">下载</a>
+            </div>
+
+            <div class="download-item">
+                <div class="info">
+                    <span class="num">#2</span>
+                    <span class="desc">
+                        2fa注册码备份
+                        <span class="tag">密码同登录</span>
+                    </span>
+                </div>
+                <a href="https://raw.githubusercontent.com/zirui6/zirui6.github.io/refs/heads/main/2fa%E6%B3%A8%E5%86%8C%E7%A0%81%E5%A4%87%E4%BB%BD%EF%BC%88%E5%8E%9F%E5%A7%8B%E7%89%88-%E5%AF%86%E7%A0%81%E5%90%8C%E7%99%BB%E5%BD%95%E5%AF%86%E7%A0%81-%E8%AF%B7%E7%94%A8%E8%87%AA%E5%8A%A8%E9%AA%8C%E8%AF%81%E6%88%96%E7%99%BB%E9%99%86%E5%99%A8%EF%BC%89.zip" target="_blank" class="btn-download primary">下载</a>
+            </div>
+
+            <div class="download-item">
+                <div class="info">
+                    <span class="num">#2</span>
+                    <span class="desc">
+                        后台注册码备份
+                        <span class="tag">密码同登录</span>
+                    </span>
+                </div>
+                <a href="http://4275.com/b31wk4" target="_blank" class="btn-download primary">下载</a>
+            </div>
+
+            <div class="download-item">
+                <div class="info">
+                    <span class="num">#3</span>
+                    <span class="desc">zirui6-2fa.zip</span>
+                </div>
+                <a href="https://raw.githubusercontent.com/zirui6/zirui6.github.io/refs/heads/main/zirui6-2fa.zip" target="_blank" class="btn-download primary">下载</a>
+            </div>
+        </div>
+
+        <!-- ====== 退出 & 返回 ====== -->
+        <button class="btn-logout" onclick="handleLogout()">退出登录</button>
+        <a href="admin.html" class="btn-back">← 返回登录页</a>
+
+    </div>
+
+    <script>
+        // ============================================================
+        // 页面初始化
+        // ============================================================
+        (function init() {
+            const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+            const username = sessionStorage.getItem("username");
+            const displayName = sessionStorage.getItem("displayName");
+            const role = sessionStorage.getItem("role");
+
+            if (isLoggedIn !== "true" || !username) {
+                window.location.href = "admin.html";
+                return;
+            }
+
+            document.getElementById("displayUser").textContent = displayName || username;
+
+            const badge = document.getElementById("roleBadge");
+            if (role === "superadmin") {
+                badge.textContent = "⚡ 超级管理员";
+            } else if (role === "demo") {
+                badge.textContent = "🎯 演示账户";
+            } else {
+                badge.textContent = "👤 用户";
+            }
+        })();
+
+        // ============================================================
+        // 退出登录
+        // ============================================================
+        function handleLogout() {
+            sessionStorage.removeItem("isLoggedIn");
+            sessionStorage.removeItem("username");
+            sessionStorage.removeItem("role");
+            sessionStorage.removeItem("displayName");
+            window.location.href = "admin.html";
+        }
+    </script>
+
+</body>
+</html>
