@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN" id="htmlRoot">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登录 · 梓睿官网</title>
+    <style>
+        /* ============================================================
+           全局样式
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-body: #eef2f7;
+            --bg-card: #ffffff;
+            --text-primary: #0b1a2e;
+            --text-secondary: #2c3e5a;
+            --text-muted: #6b7f96;
+            --border-color: #dce3ed;
+            --shadow-lg: 0 20px 64px rgba(11, 26, 46, 0.12);
+            --accent: #1a4b8c;
+            --accent-light: rgba(26, 75, 140, 0.08);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --transition: 0.3s ease;
+            --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0a1628;
+            --bg-card: #111d33;
+            --text-primary: #e8edf4;
+            --text-secondary: #a8b9d0;
+            --text-muted: #6b7f96;
+            --border-color: #1e3350;
+            --shadow-lg: 0 20px 64px rgba(0, 0, 0, 0.5);
+            --accent: #4a8fd8;
+            --accent-light: rgba(74, 143, 216, 0.12);
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-body);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            transition: background var(--transition);
+        }
+
+        .login-container {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 44px 40px 36px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header .logo-img {
+            max-width: 180px;
+            height: auto;
+            display: block;
+            margin: 0 auto 12px;
+            border-radius: 16px;
+        }
+
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-top: 6px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-body);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .tabs .tab {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .tabs .tab.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .tabs .tab:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .form-panel {
+            display: none;
+        }
+
+        .form-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            transition: all var(--transition);
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-light);
+            background: var(--bg-card);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-group .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #1a4b8c, #2c6ba8);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(26, 75, 140, 0.30);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .msg {
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .msg.error {
+            display: block;
+            background: #fde8e8;
+            color: #c62828;
+            border: 1px solid #f5c6c6;
+        }
+
+        .msg.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        [data-theme="dark"] .msg.error {
+            background: #2d1a1a;
+            color: #ef9a9a;
+            border-color: #4a2a2a;
+        }
+
+        [data-theme="dark"] .msg.success {
+            background: #1a2d1a;
+            color: #81c784;
+            border-color: #2a4a2a;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 28px 20px 24px;
+            }
+            .login-header .logo-img {
+                max-width: 140px;
+                border-radius: 12px;
+            }
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+
+        <!-- 头部 -->
+        <div class="login-header">
+            <img src="https://zirui6.github.io/logo1.png" alt="梓睿官网 Logo" class="logo-img" />
+            <p>登录以继续访问</p>
+        </div>
+
+        <!-- 消息提示 -->
+        <div class="msg" id="msg"></div>
+
+        <!-- 选项卡 -->
+        <div class="tabs">
+            <button class="tab active" data-tab="login">登录</button>
+            <button class="tab" data-tab="register">注册</button>
+        </div>
+
+        <!-- 登录面板 -->
+        <div class="form-panel active" id="panelLogin">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginAccount">用户名 / 邮箱</label>
+                    <input type="text" id="loginAccount" placeholder="请输入用户名或邮箱" required autofocus />
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码" required minlength="6" />
+                    <div class="hint">密码长度不少于6位</div>
+                </div>
+                <button type="submit" class="btn-primary" id="loginBtn">登 录</button>
+            </form>
+        </div>
+
+        <!-- 注册面板 -->
+        <div class="form-panel" id="panelRegister">
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regAccount">用户名</label>
+                    <input type="text" id="regAccount" placeholder="请设置用户名（字母或数字）" required />
+                    <div class="hint">建议使用字母和数字组合</div>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">邮箱</label>
+                    <input type="email" id="regEmail" placeholder="请输入邮箱" required />
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">密码</label>
+                    <input type="password" id="regPassword" placeholder="请设置密码（至少6位）" required minlength="6" />
+                    <div class="hint">密码长度不少于6位</div>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirm">确认密码</label>
+                    <input type="password" id="regConfirm" placeholder="请再次输入密码" required minlength="6" />
+                </div>
+                <button type="submit" class="btn-primary" id="regBtn">注 册</button>
+            </form>
+        </div>
+
+        <!-- 底部链接 -->
+        <div class="footer-links">
+            <a href="#" id="appealLink">申诉</a>
+            <a href="dashboard.html">管理员入口</a>
+            <a href="index.html">返回首页</a>
+        </div>
+
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+
+    <script>
+        // ============================================================
+        // 1. Supabase 配置（使用新的 sb_publishable_ 密钥）
+        // ============================================================
+        var SUPABASE_URL = 'https://fzvgkvvxxzegfwszeztes.supabase.co';
+        var SUPABASE_ANON_KEY = 'sb_publishable_doQMNbNC84-qL5wrjNjejA_o4LV_B0X';
+
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase 已连接 (使用新密钥)');
+
+        // ============================================================
+        // 2. DOM 引用
+        // ============================================================
+        var msgEl = document.getElementById('msg');
+        var loginForm = document.getElementById('loginForm');
+        var registerForm = document.getElementById('registerForm');
+        var loginBtn = document.getElementById('loginBtn');
+        var regBtn = document.getElementById('regBtn');
+
+        // ============================================================
+        // 3. 消息工具
+        // ============================================================
+        function showMsg(text, type) {
+            msgEl.textContent = text;
+            msgEl.className = 'msg ' + type;
+        }
+
+        function hideMsg() {
+            msgEl.className = 'msg';
+            msgEl.textContent = '';
+        }
+
+        // ============================================================
+        // 4. 选项卡切换
+        // ============================================================
+        document.querySelectorAll('.tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(function(t) {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                var target = this.dataset.tab;
+                document.querySelectorAll('.form-panel').forEach(function(p) {
+                    p.classList.remove('active');
+                });
+                document.getElementById('panel' + target.charAt(0).toUpperCase() + target.slice(1)).classList
+                    .add('active');
+
+                hideMsg();
+            });
+        });
+
+        // ============================================================
+        // 5. 检测邮箱还是用户名
+        // ============================================================
+        function isEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        // ============================================================
+        // 6. 登录处理（先查 profiles 表获取邮箱，再用邮箱登录）
+        // ============================================================
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            hideMsg();
+
+            var account = document.getElementById('loginAccount').value.trim();
+            var password = document.getElementById('loginPassword').value.trim();
+
+            if (!account || !password) {
+                showMsg('请填写完整的登录信息', 'error');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = '登录中...';
+
+            try {
+                var email = account;
+
+                // 如果不是邮箱格式，查询 profiles 表获取对应的邮箱
+                if (!isEmail(account)) {
+                    var { data: profile, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('email')
+                        .eq('username', account)
+                        .maybeSingle();
+
+                    if (profileError) {
+                        console.warn('查询 profiles 失败:', profileError);
+                    }
+
+                    if (profile && profile.email) {
+                        email = profile.email;
+                    } else {
+                        // 如果查不到，尝试用 account + @zirui.com 作为邮箱（兼容旧数据）
+                        email = account + '@zirui.com';
+                    }
+                }
+
+                // 用邮箱登录
+                var { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) {
+                    showMsg('登录失败：' + error.message, 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '登录';
+                    return;
+                }
+
+                handleLoginSuccess(data);
+
+            } catch (err) {
+                showMsg('网络错误，请稍后重试', 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登录';
+            }
+        });
+
+        function handleLoginSuccess(data) {
+            showMsg('登录成功！正在跳转...', 'success');
+
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('username', data.user.email.split('@')[0]);
+            sessionStorage.setItem('displayName', data.user.email);
+            sessionStorage.setItem('role', 'user');
+            sessionStorage.setItem('userId', data.user.id);
+
+            setTimeout(function() {
+                window.location.href = 'dashboard.html';
+            }, 1200);
+        }
+
+        // ============================================================
+        // 7. 注册处理
+        // ============================================================
+        registerForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            hideMsg();
+
+            var account = document.getElementById('regAccount').value.trim();
+            var email = document.getElementById('regEmail').value.trim();
+            var password = document.getElementById('regPassword').value.trim();
+            var confirm = document.getElementById('regConfirm').value.trim();
+
+            if (!account || !email || !password || !confirm) {
+                showMsg('请填写完整的注册信息', 'error');
+                return;
+            }
+
+            if (account.length < 2) {
+                showMsg('用户名至少2个字符', 'error');
+                return;
+            }
+
+            if (!isEmail(email)) {
+                showMsg('请输入正确的邮箱格式', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMsg('密码长度不能少于6位', 'error');
+                return;
+            }
+
+            if (password !== confirm) {
+                showMsg('两次输入的密码不一致', 'error');
+                return;
+            }
+
+            regBtn.disabled = true;
+            regBtn.textContent = '注册中...';
+
+            try {
+                // 先注册 Supabase Auth
+                var { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) {
+                    showMsg('注册失败：' + error.message, 'error');
+                    regBtn.disabled = false;
+                    regBtn.textContent = '注册';
+                    return;
+                }
+
+                if (data.user) {
+                    // 注册成功，保存用户名到 profiles 表
+                    try {
+                        var { error: profileError } = await supabase
+                            .from('profiles')
+                            .insert({
+                                id: data.user.id,
+                                username: account,
+                                email: email,
+                                created_at: new Date().toISOString()
+                            });
+
+                        if (profileError) {
+                            console.warn('保存用户名失败：', profileError);
+                        }
+                    } catch (e) {
+                        console.warn('保存用户名出错：', e);
+                    }
+
+                    showMsg('注册成功！' + (data.session ? '已自动登录，正在跳转...' : '请查收邮箱验证邮件'), 'success');
+
+                    if (data.session) {
+                        sessionStorage.setItem('isLoggedIn', 'true');
+                        sessionStorage.setItem('username', account);
+                        sessionStorage.setItem('displayName', email);
+                        sessionStorage.setItem('role', 'user');
+                        sessionStorage.setItem('userId', data.user.id);
+
+                        setTimeout(function() {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    } else {
+                        setTimeout(function() {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    }
+                } else {
+                    showMsg('注册异常，请稍后重试', 'error');
+                    regBtn.disabled = false;
+                    regBtn.textContent = '注册';
+                }
+
+            } catch (err) {
+                showMsg('网络错误，请稍后重试', 'error');
+                regBtn.disabled = false;
+                regBtn.textContent = '注册';
+            }
+        });
+
+        // ============================================================
+        // 8. 申诉处理
+        // ============================================================
+        document.getElementById('appealLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            var email = prompt('请输入你的注册邮箱，我们将发送申诉链接：');
+            if (email && email.trim()) {
+                showMsg('申诉邮件已发送至 ' + email.trim() + '，请查收', 'success');
+            }
+        });
+
+        // ============================================================
+        // 9. 检查是否已登录
+        // ============================================================
+        (function checkSession() {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                window.location.href = 'dashboard.html';
+            }
+        })();
+
+        // ============================================================
+        // 10. 深色模式
+        // ============================================================
+        (function syncTheme() {
+            var savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
+        console.log('✅ 登录页面已加载');
+    </script>
+
+</body>
+</html>
