@@ -200,17 +200,21 @@ function renderCarousel(data) {
     var track = document.getElementById('carouselTrack');
     if (!track) return;
     if (!data || data.length === 0) {
-        track.innerHTML = '<div class="carousel-slide" style="padding:56px 64px;min-height:700px;background:#1a4b8c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">暂无轮播数据，请添加</div>';
+        track.innerHTML = '<div class="carousel-slide" style="padding:56px 64px;min-height:600px;background:#1a4b8c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">暂无轮播数据，请添加</div>';
         return;
     }
     track.innerHTML = data.map(function(item) {
         var imgStyle = item.image ? 'background-image: url(' + item.image + '); background-size: cover; background-position: center; background-repeat: no-repeat;' : 'background: #1a4b8c;';
         return [
-            '<div class="carousel-slide" style="' + imgStyle + 'padding:56px 64px;min-height:700px;display:flex;flex-direction:column;justify-content:center;">',
-            '<span class="slide-badge">' + (item.badge || '') + '</span>',
-            '<h2>' + (item.title || '') + '</h2>',
-            '<p>' + (item.desc || '') + '</p>',
-            '<a href="' + (item.link || '#') + '" class="btn-detail">查看详情 →</a>',
+            '<div class="carousel-slide" style="' + imgStyle + 'padding:56px 64px;min-height:600px;display:flex;flex-direction:column;justify-content:center;gap:8px;">',
+            // ↑ 加了 gap:8px 控制间距
+            '<span class="slide-badge" style="margin-bottom:4px;">' + (item.badge || '') + '</span>',
+            // ↑ 标签下边距缩小
+            '<h2 style="font-size:38px;font-weight:800;color:#0b1a2e;letter-spacing:-0.5px;line-height:1.2;max-width:680px;margin-bottom:4px;">' + (item.title || '') + '</h2>',
+            // ↑ 标题下边距缩小
+            '<p style="font-size:17px;color:#2c3e5a;max-width:500px;line-height:1.6;margin-top:0;margin-bottom:6px;">' + (item.desc || '') + '</p>',
+            // ↑ 描述上下边距调整
+            '<a href="' + (item.link || '#') + '" class="btn-detail" style="margin-top:4px;display:inline-flex;align-items:center;gap:8px;padding:12px 32px;background:linear-gradient(135deg,#1a4b8c,#2c6ba8);color:#fff;font-size:15px;font-weight:600;width:fit-content;border-radius:8px;transition:all 0.3s;">查看详情 →</a>',
             '</div>'
         ].join('');
     }).join('');
