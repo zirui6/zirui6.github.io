@@ -2,11 +2,9 @@
 // script.js - 核心交互（从 Airtable 加载数据）
 // ============================================================
 
-// ============================================================
-// 0. Airtable 配置
-// ============================================================
-var AIRTABLE_TOKEN = 'patL3fbalVoN1424L.ea0d2daca60c07f611ac70eb0da0d95ccbc37a1f53c7552f568c79b890e93c53';
-var AIRTABLE_BASE_ID = 'app9G6YeDcFq7g09r';
+//api
+var AIRTABLE_TOKEN = 'patdZcEB92LMLW3bQ.44a613d94083deff3df9f4fda69a7b7a6c851c56faf900b16c72c6ddff7021ea';
+var AIRTABLE_BASE_ID = 'app9G6YeDcFq7g09r';  // 不变
 
 var TABLE_LOGS = '动态';
 var TABLE_PRODUCTS = '产品';
@@ -202,13 +200,13 @@ function renderCarousel(data) {
     var track = document.getElementById('carouselTrack');
     if (!track) return;
     if (!data || data.length === 0) {
-        track.innerHTML = '<div class="carousel-slide" style="padding:56px 64px;min-height:400px;background:#1a4b8c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">暂无轮播数据，请添加</div>';
+        track.innerHTML = '<div class="carousel-slide" style="padding:56px 64px;min-height:700px;background:#1a4b8c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">暂无轮播数据，请添加</div>';
         return;
     }
     track.innerHTML = data.map(function(item) {
         var imgStyle = item.image ? 'background-image: url(' + item.image + '); background-size: cover; background-position: center; background-repeat: no-repeat;' : 'background: #1a4b8c;';
         return [
-            '<div class="carousel-slide" style="' + imgStyle + 'padding:56px 64px;min-height:500px;display:flex;flex-direction:column;justify-content:center;">',
+            '<div class="carousel-slide" style="' + imgStyle + 'padding:56px 64px;min-height:700px;display:flex;flex-direction:column;justify-content:center;">',
             '<span class="slide-badge">' + (item.badge || '') + '</span>',
             '<h2>' + (item.title || '') + '</h2>',
             '<p>' + (item.desc || '') + '</p>',
