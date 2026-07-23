@@ -1,22 +1,22 @@
 /* ============================================================
-   直角全宽主题 - 部分圆角（按钮、标签、版本号）
+   直角全宽主题 - 背景图版 + 透明度优化 + 悬浮球缩小
    ============================================================ */
 
 /* --- 变量 --- */
 :root {
-    --bg-body: #eef2f7;
-    --bg-card: #ffffff;
-    --bg-topbar: rgba(255, 255, 255, 0.85);
+    --bg-body: rgba(238, 242, 247, 0.70);
+    --bg-card: rgba(255, 255, 255, 0.80);
+    --bg-topbar: rgba(255, 255, 255, 0.75);
     --text-primary: #0b1a2e;
     --text-secondary: #2c3e5a;
     --text-muted: #6b7f96;
-    --border-color: #dce3ed;
+    --border-color: rgba(220, 227, 237, 0.50);
     --shadow-sm: 0 2px 16px rgba(11, 26, 46, 0.06);
     --shadow-md: 0 8px 40px rgba(11, 26, 46, 0.08);
     --shadow-lg: 0 20px 64px rgba(11, 26, 46, 0.12);
     --accent: #1a4b8c;
     --accent-light: rgba(26, 75, 140, 0.10);
-    --footer-bg: #0b1a2e;
+    --footer-bg: rgba(11, 26, 46, 0.85);
     --footer-text: #a8b9d0;
     --radius-sm: 6px;
     --radius-md: 10px;
@@ -26,20 +26,21 @@
     --max-width: 100%;
 }
 
+/* --- 深色模式 --- */
 [data-theme="dark"] {
-    --bg-body: #0a1628;
-    --bg-card: #111d33;
-    --bg-topbar: rgba(17, 29, 51, 0.92);
+    --bg-body: rgba(10, 22, 40, 0.75);
+    --bg-card: rgba(17, 29, 51, 0.82);
+    --bg-topbar: rgba(17, 29, 51, 0.88);
     --text-primary: #e8edf4;
     --text-secondary: #a8b9d0;
     --text-muted: #6b7f96;
-    --border-color: #1e3350;
+    --border-color: rgba(30, 51, 80, 0.50);
     --shadow-sm: 0 2px 16px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 8px 40px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 20px 64px rgba(0, 0, 0, 0.5);
     --accent: #4a8fd8;
     --accent-light: rgba(74, 143, 216, 0.15);
-    --footer-bg: #060e1c;
+    --footer-bg: rgba(6, 14, 28, 0.88);
     --footer-text: #6b7f96;
 }
 
@@ -54,11 +55,16 @@ html {
 }
 body {
     font-family: var(--font);
-    background: var(--bg-body);
+    background-image: url('shouping_pad.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: var(--text-primary);
     line-height: 1.6;
     transition: background var(--transition), color var(--transition);
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
 }
 a {
     text-decoration: none;
@@ -76,10 +82,11 @@ button {
     width: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: var(--bg-body);
+    background: transparent;
 }
 ::-webkit-scrollbar-thumb {
     background: var(--accent);
+    border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
     opacity: 0.8;
@@ -255,6 +262,7 @@ button {
     box-shadow: var(--shadow-sm);
     margin-bottom: 28px;
     width: 100%;
+    backdrop-filter: blur(4px);
 }
 .carousel-track {
     display: flex;
@@ -402,6 +410,8 @@ button {
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--transition), background var(--transition);
     width: 100%;
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border-color);
 }
 .section-block:hover {
     box-shadow: var(--shadow-md);
@@ -496,9 +506,6 @@ button {
 /* ============================================================
    产品区
    ============================================================ */
-/* ============================================================
-   产品区 - 圆角 + 图片适配
-   ============================================================ */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -509,7 +516,8 @@ button {
     border: 1px solid var(--border-color);
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     background: var(--bg-card);
-    border-radius: var(--radius-md);  /* 添加圆角 */
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(4px);
 }
 .product-card:hover {
     transform: translateY(-6px);
@@ -525,18 +533,14 @@ button {
     justify-content: center;
     font-size: 36px;
     color: var(--text-muted);
-    overflow: hidden;  /* 确保图片不溢出圆角 */
+    overflow: hidden;
 }
 .product-card .img-wrap img {
     width: 100%;
     height: 100%;
-    object-fit: cover;  /* 图片等比裁剪填满 */
+    object-fit: cover;
     display: block;
 }
-.product-card .info {
-    padding: 16px 18px 18px;
-}
-/* ... 其余样式保持不变 */
 .product-card .info {
     padding: 16px 18px 18px;
 }
@@ -691,6 +695,7 @@ button {
     background: var(--bg-body);
     padding: 24px;
     border: 1px dashed var(--border-color);
+    backdrop-filter: blur(4px);
 }
 .contact-right .qr-wrap {
     width: 130px;
@@ -762,6 +767,8 @@ button {
     padding: 36px 48px 28px;
     margin-top: 12px;
     width: 100%;
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border-color);
 }
 .footer .footer-links {
     display: flex;
@@ -780,7 +787,7 @@ button {
 .footer .footer-copy {
     font-size: 13px;
     color: var(--text-muted);
-    border-top: 1px solid #1e3350;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     padding-top: 18px;
     display: flex;
     justify-content: space-between;
@@ -788,7 +795,6 @@ button {
     flex-wrap: wrap;
     gap: 12px;
 }
-
 
 /* ============================================================
    弹出框 - 圆角
@@ -807,6 +813,7 @@ button {
     border: 1px solid var(--border-color);
     animation: popUp 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     border-radius: var(--radius-md);
+    backdrop-filter: blur(12px);
 }
 .contact-popup.open,
 .notif-popup.open,
@@ -912,7 +919,7 @@ button {
 }
 
 /* ============================================================
-   大胶囊入口（AI + 网盘）- 可折叠
+   大胶囊入口 - 缩小版
    ============================================================ */
 .big-capsule-group {
     position: fixed;
@@ -920,15 +927,15 @@ button {
     bottom: 140px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
     z-index: 850;
 }
 
 .big-capsule {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 6px;
+    gap: 10px;
+    padding: 5px;
     background: var(--bg-card);
     border: 1.5px solid var(--border-color);
     border-radius: 60px;
@@ -937,19 +944,19 @@ button {
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     backdrop-filter: blur(8px);
-    width: 56px;
+    width: 44px;
     overflow: hidden;
 }
 
 /* 展开状态 */
 .big-capsule.expanded {
-    width: 160px;
-    padding: 6px 20px 6px 6px;
+    width: 130px;
+    padding: 5px 16px 5px 5px;
     border-color: var(--accent);
     box-shadow: 0 8px 40px rgba(26, 75, 140, 0.20);
 }
 
-/* 悬浮效果（仅展开时或hover时） */
+/* 悬浮效果 */
 .big-capsule:hover {
     border-color: var(--accent);
     box-shadow: 0 8px 32px rgba(26, 75, 140, 0.15);
@@ -957,13 +964,13 @@ button {
 
 /* 大圆球图标 - 始终显示 */
 .big-capsule-icon {
-    width: 44px;
-    height: 44px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 18px;
     flex-shrink: 0;
     transition: all 0.3s ease;
 }
@@ -986,7 +993,7 @@ button {
 
 /* 文字标签 - 默认隐藏 */
 .big-capsule-label {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
@@ -1004,13 +1011,24 @@ button {
     pointer-events: auto;
 }
 
-
-/* 展开时徽章移到右上角内部 */
+/* 徽章 */
+.big-capsule-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 20px;
+    background: #e74c3c;
+    color: #fff;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.30);
+}
 .big-capsule.expanded .big-capsule-badge {
     top: -4px;
     right: 6px;
 }
-
 #driveEntry .big-capsule-badge {
     background: #1a73e8;
     box-shadow: 0 2px 8px rgba(26, 115, 232, 0.30);
@@ -1034,79 +1052,7 @@ button {
     background: rgba(26, 115, 232, 0.20);
 }
 
-/* 响应式 */
-@media (max-width: 768px) {
-    .big-capsule-group {
-        right: 16px;
-        bottom: 120px;
-        gap: 12px;
-    }
-    .big-capsule {
-        width: 48px;
-        border-radius: 50px;
-    }
-    .big-capsule-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 20px;
-    }
-    .big-capsule.expanded {
-        width: 140px;
-        padding: 6px 16px 6px 6px;
-    }
-    .big-capsule-label {
-        font-size: 14px;
-    }
-    .big-capsule-badge {
-        font-size: 8px;
-        padding: 1px 6px;
-        top: -3px;
-        right: -3px;
-    }
-}
-
-@media (max-width: 480px) {
-    .big-capsule-group {
-        right: 12px;
-        bottom: 100px;
-        gap: 10px;
-    }
-    .big-capsule {
-        width: 42px;
-    }
-    .big-capsule-icon {
-        width: 30px;
-        height: 30px;
-        font-size: 17px;
-    }
-    .big-capsule.expanded {
-        width: 120px;
-        padding: 6px 12px 6px 6px;
-    }
-    .big-capsule-label {
-        font-size: 12px;
-    }
-}
-
-/* ============================================================
-   大胶囊分隔线
-   ============================================================ */
-.capsule-divider {
-    width: 32px;
-    height: 1.5px;
-    background: var(--border-color);
-    margin: 4px auto;
-    border-radius: 4px;
-    transition: background var(--transition);
-}
-
-[data-theme="dark"] .capsule-divider {
-    background: var(--border-color);
-}
-
-/* ============================================================
-   联系方式胶囊特殊样式
-   ============================================================ */
+/* --- 联系方式胶囊特殊样式 --- */
 #contactCapsule .big-capsule-icon {
     background: rgba(26, 115, 232, 0.12);
     color: #1a73e8;
@@ -1116,14 +1062,12 @@ button {
     color: #fff;
 }
 
-/* ============================================================
-   上下翻页胶囊特殊样式
-   ============================================================ */
+/* --- 上下翻页胶囊特殊样式 --- */
 #goTopCapsule .big-capsule-icon,
 #goBottomCapsule .big-capsule-icon {
     background: rgba(13, 17, 23, 0.06);
     color: var(--text-primary);
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
 }
 #goTopCapsule.expanded .big-capsule-icon,
@@ -1143,8 +1087,76 @@ button {
     color: #fff;
 }
 
+/* --- 分隔线 --- */
+.capsule-divider {
+    width: 28px;
+    height: 1.5px;
+    background: var(--border-color);
+    margin: 4px auto;
+    border-radius: 4px;
+    transition: background var(--transition);
+}
+[data-theme="dark"] .capsule-divider {
+    background: var(--border-color);
+}
+
+/* 响应式 - 手机端适配 */
+@media (max-width: 768px) {
+    .big-capsule-group {
+        right: 16px;
+        bottom: 120px;
+        gap: 8px;
+    }
+    .big-capsule {
+        width: 38px;
+        padding: 4px;
+    }
+    .big-capsule-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+    .big-capsule.expanded {
+        width: 110px;
+        padding: 4px 12px 4px 4px;
+    }
+    .big-capsule-label {
+        font-size: 12px;
+    }
+    .capsule-divider {
+        width: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .big-capsule-group {
+        right: 12px;
+        bottom: 100px;
+        gap: 6px;
+    }
+    .big-capsule {
+        width: 34px;
+        padding: 3px;
+    }
+    .big-capsule-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    .big-capsule.expanded {
+        width: 100px;
+        padding: 3px 10px 3px 3px;
+    }
+    .big-capsule-label {
+        font-size: 11px;
+    }
+    .capsule-divider {
+        width: 18px;
+    }
+}
+
 /* ============================================================
-   响应式
+   响应式 - 页面布局
    ============================================================ */
 @media (max-width: 1200px) {
     .topbar {

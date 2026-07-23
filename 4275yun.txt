@@ -1,0 +1,3 @@
+4275.com
+文件选择元素<input type="file" multiple="multiple" style="position: absolute; inset: 0px; opacity: 0; cursor: pointer;">
+链接获取元素<p class="p2"><em class="copy_1" data-clipboard-text="http://4275.com/fcu0b4">复制</em><a href="http://4275.com/fcu0b4" target="_blank">http://4275.com/fcu0b4</a></p>
