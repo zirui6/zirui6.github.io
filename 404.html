@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>数据加载失败</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #0d1117;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-container {
+            background: #fff;
+            padding: 60px 50px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #dce3ed;
+        }
+        .error-container .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .error-container h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0b1a2e;
+            margin-bottom: 8px;
+        }
+        .error-container .sub {
+            font-size: 16px;
+            color: #57606a;
+            margin-bottom: 20px;
+        }
+        .error-container .status-box {
+            background: #f6f8fa;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            text-align: left;
+            font-size: 14px;
+            color: #2c3e5a;
+            border: 1px solid #dce3ed;
+        }
+        .status-box .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #eaeef2;
+        }
+        .status-box .row:last-child { border-bottom: none; }
+        .status-box .label { color: #8b949e; }
+        .status-box .value.ok { color: #2da44e; font-weight: 600; }
+        .status-box .value.fail { color: #cf222e; font-weight: 600; }
+        .btn-retry {
+            padding: 12px 40px;
+            background: #0d1117;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-retry:hover { background: #1f2937; }
+        .btn-home {
+            display: inline-block;
+            margin-top: 12px;
+            color: #57606a;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-home:hover { text-decoration: underline; }
+        @media (max-width: 480px) {
+            .error-container { padding: 36px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="icon">🔴</div>
+        <h1>数据加载失败</h1>
+        <p class="sub">无法连接到数据服务器，请检查网络后重试</p>
+
+        <div class="status-box">
+            <div class="row">
+                <span class="label">🔄 Airtable</span>
+                <span class="value fail" id="airtableStatus">❌ 连接失败</span>
+            </div>
+            <div class="row">
+                <span class="label">⏱ 响应时间</span>
+                <span class="value" id="airtableTime">-- ms</span>
+            </div>
+            <div class="row">
+                <span class="label">🔄 Supabase（备用）</span>
+                <span class="value fail" id="supabaseStatus">❌ 未连接</span>
+            </div>
+            <div class="row">
+                <span class="label">⏱ 响应时间</span>
+                <span class="value" id="supabaseTime">-- ms</span>
+            </div>
+        </div>
+
+        <button class="btn-retry" onclick="location.reload()">🔄 重新加载</button>
+        <br />
+        <a href="index.html" class="btn-home">← 返回首页</a>
+    </div>
+
+    <script>
+        // 从 URL 参数读取状态
+        var params = new URLSearchParams(window.location.search);
+        document.getElementById('airtableStatus').textContent = params.get('airtable') || '❌ 连接失败';
+        document.getElementById('airtableTime').textContent = params.get('airtableTime') || '-- ms';
+        document.getElementById('supabaseStatus').textContent = params.get('supabase') || '❌ 未连接';
+        document.getElementById('supabaseTime').textContent = params.get('supabaseTime') || '-- ms';
+    </script>
+</body>
+</html>

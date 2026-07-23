@@ -7,7 +7,51 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+    
+    <!-- ====== 加载动画（页面最顶部） ====== -->
+<div id="loadingOverlay" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: opacity 0.5s ease;
+">
+    <div style="
+        width: 52px;
+        height: 52px;
+        border: 4px solid #eef2f7;
+        border-top-color: #1a4b8c;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    "></div>
+    <p style="
+        margin-top: 18px;
+        font-size: 17px;
+        color: #1a4b8c;
+        font-weight: 600;
+        font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    ">加载中...</p>
+    <p style="
+        margin-top: 6px;
+        font-size: 14px;
+        color: #8b949e;
+        font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    " id="loadingStatus">正在连接服务器...</p>
+</div>
 
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
     <!-- ====== 顶栏 ====== -->
     <header class="topbar" id="topbar">
         <div class="left">
@@ -100,11 +144,11 @@
             </div>
             <div class="version-section">
                 <div>
-                    <div class="version-badge">v1.3.0</div>
+                    <div class="version-badge">v1.5.0</div>
                     <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">Build 2026.07</div>
                 </div>
                 <ul class="changelog">
-                    <li>全新直角全宽设计</li>
+                    <li>后端推送逻辑更新</li>
                     <li>胶囊式侧边入口</li>
                     <li>AI + 网盘 + 联系 + 上下翻页</li>
                     <li>数据分离至 data.js</li>

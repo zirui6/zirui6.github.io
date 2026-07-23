@@ -1,10 +1,12 @@
 // ============================================================
-// script.js - 核心交互（从 Airtable 加载数据）
+// script.js - 加载动画 + Airtable 数据源
 // ============================================================
 
-//api
+// ============================================================
+// 0. Airtable 配置
+// ============================================================
 var AIRTABLE_TOKEN = 'patdZcEB92LMLW3bQ.44a613d94083deff3df9f4fda69a7b7a6c851c56faf900b16c72c6ddff7021ea';
-var AIRTABLE_BASE_ID = 'app9G6YeDcFq7g09r';  // 不变
+var AIRTABLE_BASE_ID = 'app9G6YeDcFq7g09r';
 
 var TABLE_LOGS = '动态';
 var TABLE_PRODUCTS = '产品';
@@ -18,7 +20,33 @@ var articleData = [];
 var carouselData = [];
 
 // ============================================================
-// 0.1 Airtable 请求函数
+// 0.1 显示/隐藏加载动画
+// ============================================================
+function showLoading() {
+    var overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+    }
+}
+
+function hideLoading() {
+    var overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(function() {
+            overlay.style.display = 'none';
+        }, 400);
+    }
+}
+
+function updateLoadingStatus(text) {
+    var el = document.getElementById('loadingStatus');
+    if (el) el.textContent = text;
+}
+
+// ============================================================
+// 0.2 Airtable 请求函数
 // ============================================================
 function fetchAirtable(tableName) {
     var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + encodeURIComponent(tableName);
@@ -51,29 +79,20 @@ function fetchAirtable(tableName) {
             }
             return result;
         });
-    })
-    .catch(function(error) {
-        console.warn('加载 ' + tableName + ' 失败:', error);
-        return [];
     });
 }
 
 // ============================================================
-// 0.2 加载数据（备用数据优先，确保页面不空）
+// 0.3 加载数据（失败跳转 404.html）
 // ============================================================
 function loadAllData() {
     console.log('🔄 正在加载数据...');
+    showLoading();
+    updateLoadingStatus('正在连接服务器...');
     
-    // 1. 先用备用数据填充（保证页面不空）
-    logData = getFallbackLogs();
-    productData = getFallbackProducts();
-    articleData = getFallbackArticles();
-    carouselData = getFallbackCarousel();
+    var startTime = Date.now();
     
-    // 2. 立即渲染（显示备用数据）
-    initApp();
-    
-    // 3. 然后尝试从 Airtable 加载
+    // 先尝试 Airtable
     Promise.all([
         fetchAirtable(TABLE_LOGS),
         fetchAirtable(TABLE_PRODUCTS),
@@ -81,53 +100,68 @@ function loadAllData() {
         fetchAirtable(TABLE_CAROUSEL)
     ])
     .then(function(results) {
-        // 如果 Airtable 有数据，用 Airtable 数据覆盖
-        if (results[0] && results[0].length > 0) {
-            logData = results[0];
-            productData = results[1];
-            articleData = results[2];
-            carouselData = results[3];
+        var airtableTime = Date.now() - startTime;
+        var hasData = results.some(function(r) { return r && r.length > 0; });
+        
+        if (hasData) {
+            logData = results[0] || [];
+            productData = results[1] || [];
+            articleData = results[2] || [];
+            carouselData = results[3] || [];
             
             console.log('✅ Airtable 数据加载完成');
             console.log('📰 动态:', logData.length, '条');
             console.log('📦 产品:', productData.length, '条');
             console.log('📖 文章:', articleData.length, '条');
             console.log('🔄 轮播:', carouselData.length, '条');
+            console.log('⏱ 响应时间:', airtableTime, 'ms');
             
-            // 重新渲染
+            hideLoading();
             initApp();
         } else {
-            console.log('Airtable 数据为空，使用备用数据');
+            // Airtable 返回空数据 → 跳转 404
+            console.warn('Airtable 数据为空');
+            var airtableTime2 = Date.now() - startTime;
+            window.location.href = '404.html?airtable=❌ 数据为空&airtableTime=' + airtableTime2 + 'ms';
         }
     })
     .catch(function(error) {
-        console.log('Airtable 连接失败，使用备用数据:', error);
+        console.error('❌ Airtable 连接失败:', error);
+        var failTime = Date.now() - startTime;
+        // 跳转到 404.html 并显示两个服务器的状态
+        window.location.href = '404.html?airtable=❌ 连接失败&airtableTime=' + failTime + 'ms';
     });
 }
 
 // ============================================================
-// 0.3 备用数据（Airtable 加载失败时使用）
+// 0.4 错误状态显示
 // ============================================================
-function getFallbackLogs() {
-    return [
-        { date: '2026-07-23', author: 'admin', tag: '更新', title: '已接入Airtable数据源' },
-        { date: '2026-07-21', author: 'admin', tag: '更新', title: 'UI适配全面升级' },
-    ];
-}
-function getFallbackProducts() {
-    return [
-        { name: '品牌官网', desc: '专业级展示方案', img: '🏢', viewUrl: '#', downloadUrl: '#' },
-    ];
-}
-function getFallbackArticles() {
-    return [
-        { date: '2026-07-23', author: '梓睿', tag: '更新', title: 'Airtable接入完成', sub: '数据在线管理', url: '#' },
-    ];
-}
-function getFallbackCarousel() {
-    return [
-        { badge: '新品首发', title: '下一代数字体验平台', desc: '无缝连接，重新定义交互', image: 'https://picsum.photos/1920/600?random=1', link: '#' },
-    ];
+function showErrorState(title, message) {
+    // 清空所有内容区域
+    var containers = ['logContainer', 'productGrid', 'articleContainer'];
+    containers.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = '';
+    });
+    
+    // 轮播显示错误
+    var track = document.getElementById('carouselTrack');
+    if (track) {
+        track.innerHTML = '<div class="carousel-slide" style="padding:56px 64px;min-height:400px;background:#1a4b8c;color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">' +
+            '<div style="font-size:48px;">🔴</div>' +
+            '<div style="font-size:22px;font-weight:700;">' + title + '</div>' +
+            '<div style="font-size:15px;color:rgba(255,255,255,0.7);">' + message + '</div>' +
+            '<button onclick="location.reload()" style="margin-top:16px;padding:10px 32px;background:#fff;color:#1a4b8c;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">重新加载</button>' +
+            '</div>';
+    }
+    
+    // 日志区域显示错误
+    var logContainer = document.getElementById('logContainer');
+    if (logContainer) {
+        logContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#cf222e;font-size:16px;">❌ ' + title + '<br><span style="font-size:14px;color:#8b949e;">' + message + '</span></div>';
+    }
+    
+    console.log('✅ 错误状态已显示');
 }
 
 // ============================================================
@@ -200,21 +234,28 @@ function renderCarousel(data) {
     var track = document.getElementById('carouselTrack');
     if (!track) return;
     if (!data || data.length === 0) {
-        track.innerHTML = '<div class="carousel-slide" style="padding:56px 64px;min-height:600px;background:#1a4b8c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">暂无轮播数据，请添加</div>';
+        track.innerHTML = '<div class="carousel-slide" style="padding:56px 64px;min-height:400px;background:#1a4b8c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">📭 暂无轮播数据</div>';
         return;
     }
-    track.innerHTML = data.map(function(item) {
-        var imgStyle = item.image ? 'background-image: url(' + item.image + '); background-size: cover; background-position: center; background-repeat: no-repeat;' : 'background: #1a4b8c;';
+    // 按排序字段排序
+    var sortedData = data.slice().sort(function(a, b) {
+        return (a['排序'] || 0) - (b['排序'] || 0);
+    });
+    track.innerHTML = sortedData.map(function(item) {
+        var badge = item['标签'] || '';
+        var title = item['标题'] || '';
+        var desc = item['描述'] || '';
+        var image = item['图片链接'] || '';
+        var link = item['链接'] || '#';
+        var imgStyle = image && typeof image === 'string' && image.startsWith('http')
+            ? 'background-image: url(' + image + '); background-size: cover; background-position: center; background-repeat: no-repeat;'
+            : 'background: linear-gradient(135deg, #1a4b8c, #2c6ba8);';
         return [
             '<div class="carousel-slide" style="' + imgStyle + 'padding:56px 64px;min-height:600px;display:flex;flex-direction:column;justify-content:center;gap:8px;">',
-            // ↑ 加了 gap:8px 控制间距
-            '<span class="slide-badge" style="margin-bottom:4px;">' + (item.badge || '') + '</span>',
-            // ↑ 标签下边距缩小
-            '<h2 style="font-size:38px;font-weight:800;color:#0b1a2e;letter-spacing:-0.5px;line-height:1.2;max-width:680px;margin-bottom:4px;">' + (item.title || '') + '</h2>',
-            // ↑ 标题下边距缩小
-            '<p style="font-size:17px;color:#2c3e5a;max-width:500px;line-height:1.6;margin-top:0;margin-bottom:6px;">' + (item.desc || '') + '</p>',
-            // ↑ 描述上下边距调整
-            '<a href="' + (item.link || '#') + '" class="btn-detail" style="margin-top:4px;display:inline-flex;align-items:center;gap:8px;padding:12px 32px;background:linear-gradient(135deg,#1a4b8c,#2c6ba8);color:#fff;font-size:15px;font-weight:600;width:fit-content;border-radius:8px;transition:all 0.3s;">查看详情 →</a>',
+            '<span class="slide-badge" style="margin-bottom:4px;">' + badge + '</span>',
+            '<h2 style="font-size:38px;font-weight:800;color:#0b1a2e;letter-spacing:-0.5px;line-height:1.2;max-width:680px;margin-bottom:4px;">' + title + '</h2>',
+            '<p style="font-size:17px;color:#2c3e5a;max-width:500px;line-height:1.6;margin-top:0;margin-bottom:6px;">' + desc + '</p>',
+            '<a href="' + link + '" class="btn-detail" style="margin-top:4px;display:inline-flex;align-items:center;gap:8px;padding:12px 32px;background:linear-gradient(135deg,#1a4b8c,#2c6ba8);color:#fff;font-size:15px;font-weight:600;width:fit-content;border-radius:8px;text-decoration:none;transition:all 0.3s;">查看详情 →</a>',
             '</div>'
         ].join('');
     }).join('');
@@ -229,14 +270,21 @@ function renderLogs(data, containerId, initialCount) {
     }
     container.innerHTML = data.map(function(item, idx) {
         var hiddenClass = idx >= initialCount ? 'hidden' : '';
+        // 👇 改成中文字段名
+        var date = item['日期'] || '';
+        var author = item['作者'] || '';
+        var tag = item['标签'] || '';
+        var title = item['标题'] || '';
+        var sub = item['摘要'] || '';
         return [
             '<div class="log-item ' + hiddenClass + '" data-index="' + idx + '">',
             '<div class="log-meta">',
-            '<span>' + (item.date || '') + '</span>',
-            '<span>' + (item.author || '') + '</span>',
-            '<span class="tag">' + (item.tag || '') + '</span>',
+            '<span>' + date + '</span>',
+            '<span>' + author + '</span>',
+            '<span class="tag">' + tag + '</span>',
             '</div>',
-            '<div class="log-title"><span class="prefix">›</span> ' + (item.title || '') + '</div>',
+            '<div class="log-title"><span class="prefix">›</span> ' + title + '</div>',
+            (sub ? '<div style="font-size:14px;color:#57606a;padding-left:24px;">' + sub + '</div>' : ''),
             '</div>'
         ].join('');
     }).join('');
@@ -246,24 +294,29 @@ function renderProducts(data, containerId, initialCount) {
     var container = document.getElementById(containerId);
     if (!container) return;
     if (!data || data.length === 0) {
-        container.innerHTML = '<div style="padding:20px;color:#8b949e;text-align:center;">暂无产品</div>';
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:#8b949e;">📭 暂无产品</div>';
         return;
     }
     container.innerHTML = data.map(function(item, idx) {
         var hiddenClass = idx >= initialCount ? 'hidden' : '';
-        var imgContent = item.img || '';
-        if (imgContent && typeof imgContent === 'string' && (imgContent.startsWith('http') || imgContent.startsWith('/'))) {
-            imgContent = '<img src="' + imgContent + '" alt="' + (item.name || '') + '" loading="lazy" />';
-        }
+        // 👇 改成中文字段名
+        var name = item['名称'] || '';
+        var desc = item['描述'] || '';
+        var img = item['图片网址'] || '';
+        var viewUrl = item['查看链接'] || '#';
+        var downloadUrl = item['下载链接'] || '#';
+        var imgContent = img && typeof img === 'string' && (img.startsWith('http') || img.startsWith('/'))
+            ? '<img src="' + img + '" alt="' + name + '" loading="lazy" />'
+            : (img || '📦');
         return [
             '<div class="product-card ' + hiddenClass + '" data-index="' + idx + '">',
             '<div class="img-wrap">' + imgContent + '</div>',
             '<div class="info">',
-            '<div class="name">' + (item.name || '') + '</div>',
-            '<div class="desc">' + (item.desc || '') + '</div>',
+            '<div class="name">' + name + '</div>',
+            '<div class="desc">' + desc + '</div>',
             '<div class="actions">',
-            '<a href="' + (item.viewUrl || '#') + '" target="_blank" class="view-btn">查看详情</a>',
-            '<a href="' + (item.downloadUrl || '#') + '" target="_blank" class="download-btn">下载</a>',
+            '<a href="' + viewUrl + '" target="_blank" class="view-btn">查看详情</a>',
+            '<a href="' + downloadUrl + '" target="_blank" class="download-btn">下载</a>',
             '</div>',
             '</div>',
             '</div>'
@@ -275,30 +328,33 @@ function renderArticles(data, containerId, initialCount) {
     var container = document.getElementById(containerId);
     if (!container) return;
     if (!data || data.length === 0) {
-        container.innerHTML = '<div style="padding:20px;color:#8b949e;text-align:center;">暂无文章</div>';
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:#8b949e;">📭 暂无文章</div>';
         return;
     }
     container.innerHTML = data.map(function(item, idx) {
         var hiddenClass = idx >= initialCount ? 'hidden' : '';
-        var url = item.url || '#';
+        var date = item['日期'] || '';
+        var author = item['作者'] || '';
+        var tag = item['标签'] || '';
+        var title = item['标题'] || '';
+        var sub = item['摘要'] || '';
+        var url = item['URL'] || '#';
         return [
             '<div class="article-item ' + hiddenClass + '" data-index="' + idx + '" data-url="' + url + '">',
             '<div class="art-meta">',
-            '<span>' + (item.date || '') + '</span>',
-            '<span>' + (item.author || '') + '</span>',
-            '<span class="art-tag">' + (item.tag || '') + '</span>',
+            '<span>' + date + '</span>',
+            '<span>' + author + '</span>',
+            '<span class="art-tag">' + tag + '</span>',
             '</div>',
-            '<div class="art-title">' + (item.title || '') + '</div>',
-            '<div class="art-sub">' + (item.sub || '') + '</div>',
+            '<div class="art-title">' + title + '</div>',
+            '<div class="art-sub">' + sub + '</div>',
             '</div>'
         ].join('');
     }).join('');
     container.querySelectorAll('.article-item').forEach(function(el) {
         var url = el.getAttribute('data-url');
         el.addEventListener('click', function() {
-            if (url && url !== '#') {
-                window.open(url, '_blank');
-            }
+            if (url && url !== '#') window.open(url, '_blank');
         });
     });
 }
@@ -357,15 +413,19 @@ function loadMore(type) {
 // 4. 初始化应用
 // ============================================================
 function initApp() {
+    // ⚠️ 关键：先更新 totalCount
     totalCount.logs = logData.length;
     totalCount.products = productData.length;
     totalCount.articles = articleData.length;
 
+    // 然后渲染
     renderLogs(logData, 'logContainer', PAGE_SIZE.logs);
+    renderLogs(logData, 'logContainer');  // 去掉 initialCount 参数
     renderProducts(productData, 'productGrid', PAGE_SIZE.products);
     renderArticles(articleData, 'articleContainer', PAGE_SIZE.articles);
     renderCarousel(carouselData);
 
+    // 最后更新可见性
     updateVisibility('logs', '#logContainer', '.log-item');
     updateVisibility('products', '#productGrid', '.product-card');
     updateVisibility('articles', '#articleContainer', '.article-item');
@@ -456,7 +516,6 @@ function applyLanguage(lang) {
     if (statsToggle) statsToggle.textContent = t.statsLabel;
     var experimentToggle = document.getElementById('experimentToggle');
     if (experimentToggle) experimentToggle.textContent = t.experimentLabel;
-    // 更新更多按钮
     document.querySelectorAll('.more-btn').forEach(function(btn) {
         var span = btn.querySelector('span');
         if (span) {
@@ -504,7 +563,6 @@ document.querySelectorAll('.more-btn').forEach(function(btn) {
     });
 });
 
-// 设置栏切换
 var settingsToggle = document.getElementById('settingsToggle');
 var settingsBar = document.getElementById('settingsBar');
 if (settingsToggle && settingsBar) {
@@ -514,7 +572,6 @@ if (settingsToggle && settingsBar) {
     });
 }
 
-// 深色模式
 var themeToggle = document.getElementById('themeToggle');
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
@@ -529,7 +586,6 @@ if (themeToggle) {
     });
 }
 
-// 通知
 var notifToggle = document.getElementById('notifToggle');
 var notifPopup = document.getElementById('notifPopup');
 var notifClose = document.getElementById('notifClose');
@@ -552,7 +608,6 @@ if (notifClose) {
     });
 }
 
-// 数据统计
 var statsToggle = document.getElementById('statsToggle');
 var statsPopup = document.getElementById('statsPopup');
 var statsClose = document.getElementById('statsClose');
@@ -600,7 +655,6 @@ if (statsClose) {
     });
 }
 
-// 实验功能
 var experimentToggle = document.getElementById('experimentToggle');
 if (experimentToggle) {
     experimentToggle.addEventListener('click', function() {
@@ -608,7 +662,6 @@ if (experimentToggle) {
     });
 }
 
-// 语言切换
 var langToggle = document.getElementById('langToggle');
 if (langToggle) {
     langToggle.addEventListener('click', function() {
@@ -617,7 +670,6 @@ if (langToggle) {
     });
 }
 
-// 登录按钮
 var loginBtn = document.getElementById('loginBtn');
 if (loginBtn) {
     loginBtn.addEventListener('click', function() {
@@ -625,7 +677,6 @@ if (loginBtn) {
     });
 }
 
-// 回到顶部 / 跳转底部
 var goTopBtn = document.getElementById('goTop');
 var goBottomBtn = document.getElementById('goBottom');
 function updateNavButtons() {
@@ -653,7 +704,9 @@ window.addEventListener('scroll', updateNavButtons, { passive: true });
 window.addEventListener('resize', updateNavButtons, { passive: true });
 setTimeout(updateNavButtons, 100);
 
-// 大胶囊点击事件
+// ============================================================
+// 8. 大胶囊点击事件
+// ============================================================
 document.querySelectorAll('.big-capsule').forEach(function(capsule) {
     capsule.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -679,7 +732,6 @@ document.querySelectorAll('.big-capsule').forEach(function(capsule) {
     });
 });
 
-// 点击外部关闭胶囊
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.big-capsule')) {
         document.querySelectorAll('.big-capsule.expanded').forEach(function(c) {
@@ -688,7 +740,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 点击外部关闭弹出框
 document.addEventListener('click', function(e) {
     if (notifOpen && notifPopup && !notifPopup.contains(e.target) && e.target !== notifToggle) {
         notifOpen = false;
@@ -707,7 +758,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 顶栏滚动阴影
 var topbar = document.getElementById('topbar');
 window.addEventListener('scroll', function() {
     if (topbar) {
@@ -715,7 +765,6 @@ window.addEventListener('scroll', function() {
     }
 }, { passive: true });
 
-// 导航平滑滚动
 document.querySelectorAll('.nav-func a').forEach(function(link) {
     link.addEventListener('click', function(e) {
         var target = document.querySelector(this.getAttribute('href'));
@@ -727,7 +776,7 @@ document.querySelectorAll('.nav-func a').forEach(function(link) {
 });
 
 // ============================================================
-// 8. 启动应用
+// 9. 启动应用
 // ============================================================
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadAllData);
@@ -735,5 +784,5 @@ if (document.readyState === 'loading') {
     loadAllData();
 }
 
-console.log('梓睿官网 v1.4.0 - Airtable 数据源');
-console.log('数据来源: Airtable | 在线更新');
+console.log('梓睿官网 v1.5.0 - 加载动画');
+console.log('数据来源: Airtable');
