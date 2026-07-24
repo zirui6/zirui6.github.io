@@ -342,26 +342,15 @@
     </script>
 
     <script>
+
 // ============================================================
-// 1. Supabase 配置（通过 CORS 代理）
+// 1. Supabase 配置（直连）
 // ============================================================
-
-// 方法一：使用 corsproxy.io 代理（免费，但有时不稳定）
-var SUPABASE_URL = 'https://corsproxy.io/?' + 
-    encodeURIComponent('https://fzvgkvvxxzegfwszeztes.supabase.co');
-
-// 方法二：使用 allorigins.win 代理（备选）
-// var SUPABASE_URL = 'https://api.allorigins.win/raw?url=' + 
-//     encodeURIComponent('https://fzvgkvvxxzegfwszeztes.supabase.co');
-
-// 方法三：使用 thingproxy 代理（备选）
-// var SUPABASE_URL = 'https://thingproxy.freeboard.io/fetch/' + 
-//     'https://fzvgkvvxxzegfwszeztes.supabase.co';
-
+var SUPABASE_URL = 'https://fzvgkvvxxzegfwszeztes.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_doQMNbNC84-qL5wrjNjejA_o4LV_B0X';
 
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log('✅ Supabase 已连接 (通过 CORS 代理)');
+console.log('✅ Supabase 已连接 (直连)');
 
         // ============================================================
         // 2. DOM 引用

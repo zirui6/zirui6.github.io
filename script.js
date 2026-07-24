@@ -563,6 +563,7 @@ document.querySelectorAll('.more-btn').forEach(function(btn) {
     });
 });
 
+// 设置栏切换
 var settingsToggle = document.getElementById('settingsToggle');
 var settingsBar = document.getElementById('settingsBar');
 if (settingsToggle && settingsBar) {
@@ -572,137 +573,30 @@ if (settingsToggle && settingsBar) {
     });
 }
 
+// 深色模式（默认深色）
 var themeToggle = document.getElementById('themeToggle');
+
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+    // 更新按钮文字
+    if (themeToggle) {
+        var isDark = theme === 'dark';
+        var label = isDark ? '☀️ 浅色模式' : '🌙 深色模式';
+        themeToggle.innerHTML = label;
+    }
 }
-var savedTheme = localStorage.getItem('theme') || 'light';
+
+// 默认深色
+var savedTheme = localStorage.getItem('theme') || 'dark';
 applyTheme(savedTheme);
+
 if (themeToggle) {
     themeToggle.addEventListener('click', function() {
         var current = document.documentElement.getAttribute('data-theme');
         applyTheme(current === 'dark' ? 'light' : 'dark');
     });
 }
-
-var notifToggle = document.getElementById('notifToggle');
-var notifPopup = document.getElementById('notifPopup');
-var notifClose = document.getElementById('notifClose');
-var notifOpen = false;
-if (notifToggle && notifPopup) {
-    notifToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        notifOpen = !notifOpen;
-        if (notifOpen) {
-            notifPopup.classList.add('open');
-        } else {
-            notifPopup.classList.remove('open');
-        }
-    });
-}
-if (notifClose) {
-    notifClose.addEventListener('click', function() {
-        notifOpen = false;
-        notifPopup.classList.remove('open');
-    });
-}
-
-var statsToggle = document.getElementById('statsToggle');
-var statsPopup = document.getElementById('statsPopup');
-var statsClose = document.getElementById('statsClose');
-var statsOpen = false;
-var visitCount = parseInt(sessionStorage.getItem('visitCount') || '0');
-visitCount += 1;
-sessionStorage.setItem('visitCount', visitCount);
-var visitCountEl = document.getElementById('visitCount');
-if (visitCountEl) visitCountEl.textContent = visitCount;
-
-if (statsToggle && statsPopup) {
-    statsToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        statsOpen = !statsOpen;
-        if (statsOpen) {
-            statsPopup.classList.add('open');
-            var t = translations[currentLang];
-            var strongs = document.querySelectorAll('.stats-item strong');
-            if (strongs.length >= 4) {
-                strongs[0].textContent = articleData.length;
-                strongs[1].textContent = productData.length;
-                strongs[2].textContent = logData.length;
-            }
-            if (visitCountEl) visitCountEl.textContent = visitCount;
-            var statsItems = document.querySelectorAll('.stats-item');
-            var keys = ['statsArticles', 'statsProducts', 'statsLogs', 'statsVisits'];
-            statsItems.forEach(function(el, i) {
-                if (i < keys.length) {
-                    var label = t[keys[i]];
-                    var value = el.querySelector('strong') ? el.querySelector('strong').textContent : '';
-                    el.innerHTML = label + '：<strong>' + value + '</strong>';
-                }
-            });
-            var footer = document.querySelector('#statsPopup div:last-child');
-            if (footer) footer.textContent = t.statsUpdate;
-        } else {
-            statsPopup.classList.remove('open');
-        }
-    });
-}
-if (statsClose) {
-    statsClose.addEventListener('click', function() {
-        statsOpen = false;
-        statsPopup.classList.remove('open');
-    });
-}
-
-var experimentToggle = document.getElementById('experimentToggle');
-if (experimentToggle) {
-    experimentToggle.addEventListener('click', function() {
-        alert('实验功能开发中，敬请期待！');
-    });
-}
-
-var langToggle = document.getElementById('langToggle');
-if (langToggle) {
-    langToggle.addEventListener('click', function() {
-        var nextLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
-        applyLanguage(nextLang);
-    });
-}
-
-var loginBtn = document.getElementById('loginBtn');
-if (loginBtn) {
-    loginBtn.addEventListener('click', function() {
-        alert(translations[currentLang].loginAlert);
-    });
-}
-
-var goTopBtn = document.getElementById('goTop');
-var goBottomBtn = document.getElementById('goBottom');
-function updateNavButtons() {
-    var scrollY = window.scrollY;
-    var windowHeight = window.innerHeight;
-    var documentHeight = document.documentElement.scrollHeight;
-    if (goTopBtn) {
-        goTopBtn.classList.toggle('hidden', scrollY <= 100);
-    }
-    if (goBottomBtn) {
-        goBottomBtn.classList.toggle('hidden', scrollY + windowHeight >= documentHeight - 200);
-    }
-}
-if (goTopBtn) {
-    goTopBtn.addEventListener('click', function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}
-if (goBottomBtn) {
-    goBottomBtn.addEventListener('click', function() {
-        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-    });
-}
-window.addEventListener('scroll', updateNavButtons, { passive: true });
-window.addEventListener('resize', updateNavButtons, { passive: true });
-setTimeout(updateNavButtons, 100);
 
 // ============================================================
 // 8. 大胶囊点击事件
@@ -722,7 +616,7 @@ document.querySelectorAll('.big-capsule').forEach(function(capsule) {
                 var popup = document.getElementById('contactPopup');
                 if (popup) popup.classList.toggle('open');
             } else if (id === 'aiEntry') {
-                alert('AI 智能助手功能开发中...');
+                alert('AI 助手功能开发中...');
             } else if (id === 'driveEntry') {
                 alert('我的网盘功能开发中...');
             }
