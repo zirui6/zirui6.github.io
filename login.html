@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>登录 · 梓睿官网</title>
+    <title>登录</title>
     <style>
         /* ============================================================
            全局样式
@@ -175,6 +175,27 @@
             margin-top: 4px;
         }
 
+        .form-group .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .form-group .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .form-group .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: 400;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
         .btn-primary {
             width: 100%;
             padding: 13px;
@@ -221,6 +242,13 @@
             border: 1px solid #c8e6c9;
         }
 
+        .msg.info {
+            display: block;
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #bbdefb;
+        }
+
         [data-theme="dark"] .msg.error {
             background: #2d1a1a;
             color: #ef9a9a;
@@ -231,6 +259,12 @@
             background: #1a2d1a;
             color: #81c784;
             border-color: #2a4a2a;
+        }
+
+        [data-theme="dark"] .msg.info {
+            background: #1a2a3d;
+            color: #90caf9;
+            border-color: #2a4a6a;
         }
 
         .footer-links {
@@ -299,6 +333,12 @@
                     <input type="password" id="loginPassword" placeholder="请输入密码" required minlength="6" />
                     <div class="hint">密码长度不少于6位</div>
                 </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe" checked />
+                        <label for="rememberMe">记住我（7天）</label>
+                    </div>
+                </div>
                 <button type="submit" class="btn-primary" id="loginBtn">登 录</button>
             </form>
         </div>
@@ -330,7 +370,7 @@
 
         <!-- 底部链接 -->
         <div class="footer-links">
-<a href="https://www.jotform.com/form/262001826516046" target="_blank">申诉</a>
+            <a href="https://www.jotform.com/form/262001826516046" target="_blank">申诉</a>
             <a href="dashboard.html">管理员入口</a>
             <a href="index.html">返回首页</a>
         </div>
@@ -344,273 +384,456 @@
     <script>
 
 // ============================================================
-// 1. Supabase 配置（直连）
+// 1. Cookie 工具函数
 // ============================================================
-var SUPABASE_URL = 'https://fzvgkvvxxzegfwszeztes.supabase.co';
+var CookieHelper = {
+    // 设置Cookie（带过期时间）
+    set: function(name, value, days) {
+        var expires = '';
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = '; expires=' + date.toUTCString();
+        }
+        document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
+    },
+    
+    // 获取Cookie
+    get: function(name) {
+        var nameEQ = name + '=';
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) {
+                return decodeURIComponent(c.substring(nameEQ.length, c.length));
+            }
+        }
+        return null;
+    },
+    
+    // 删除Cookie
+    delete: function(name) {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    },
+    
+    // 获取所有Cookie（解析为对象）
+    getAll: function() {
+        var cookies = {};
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            var eqPos = c.indexOf('=');
+            if (eqPos > 0) {
+                var name = c.substring(0, eqPos);
+                var value = decodeURIComponent(c.substring(eqPos + 1));
+                cookies[name] = value;
+            }
+        }
+        return cookies;
+    }
+};
+
+// ============================================================
+// 2. Supabase 配置（使用 Cloudflare Worker 代理）
+// ============================================================
+// 使用 Worker 代理地址，而不是直连 Supabase
+var SUPABASE_URL = 'https://supabase-api.ruijmsgdcn.workers.dev';
 var SUPABASE_ANON_KEY = 'sb_publishable_doQMNbNC84-qL5wrjNjejA_o4LV_B0X';
 
-var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log('✅ Supabase 已连接 (直连)');
-
-        // ============================================================
-        // 2. DOM 引用
-        // ============================================================
-        var msgEl = document.getElementById('msg');
-        var loginForm = document.getElementById('loginForm');
-        var registerForm = document.getElementById('registerForm');
-        var loginBtn = document.getElementById('loginBtn');
-        var regBtn = document.getElementById('regBtn');
-
-        // ============================================================
-        // 3. 消息工具
-        // ============================================================
-        function showMsg(text, type) {
-            msgEl.textContent = text;
-            msgEl.className = 'msg ' + type;
+// 创建 Supabase 客户端，配置代理
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storage: {
+            getItem: function(key) {
+                return CookieHelper.get(key);
+            },
+            setItem: function(key, value) {
+                // 会话数据保存7天
+                CookieHelper.set(key, value, 7);
+            },
+            removeItem: function(key) {
+                CookieHelper.delete(key);
+            }
         }
+    }
+});
 
-        function hideMsg() {
-            msgEl.className = 'msg';
-            msgEl.textContent = '';
-        }
+console.log('✅ Supabase 已连接 (通过 Worker 代理)');
 
-        // ============================================================
-        // 4. 选项卡切换
-        // ============================================================
-        document.querySelectorAll('.tab').forEach(function(tab) {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(function(t) {
-                    t.classList.remove('active');
-                });
-                this.classList.add('active');
+// ============================================================
+// 3. DOM 引用
+// ============================================================
+var msgEl = document.getElementById('msg');
+var loginForm = document.getElementById('loginForm');
+var registerForm = document.getElementById('registerForm');
+var loginBtn = document.getElementById('loginBtn');
+var regBtn = document.getElementById('regBtn');
+var rememberMe = document.getElementById('rememberMe');
 
-                var target = this.dataset.tab;
-                document.querySelectorAll('.form-panel').forEach(function(p) {
-                    p.classList.remove('active');
-                });
-                document.getElementById('panel' + target.charAt(0).toUpperCase() + target.slice(1)).classList
-                    .add('active');
+// ============================================================
+// 4. 消息工具
+// ============================================================
+function showMsg(text, type) {
+    msgEl.textContent = text;
+    msgEl.className = 'msg ' + type;
+}
 
-                hideMsg();
-            });
+function hideMsg() {
+    msgEl.className = 'msg';
+    msgEl.textContent = '';
+}
+
+// ============================================================
+// 5. 选项卡切换
+// ============================================================
+document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(function(t) {
+            t.classList.remove('active');
         });
+        this.classList.add('active');
 
-        // ============================================================
-        // 5. 检测邮箱还是用户名
-        // ============================================================
-        function isEmail(value) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-        }
+        var target = this.dataset.tab;
+        document.querySelectorAll('.form-panel').forEach(function(p) {
+            p.classList.remove('active');
+        });
+        document.getElementById('panel' + target.charAt(0).toUpperCase() + target.slice(1)).classList
+            .add('active');
 
-        // ============================================================
-        // 6. 登录处理（先查 profiles 表获取邮箱，再用邮箱登录）
-        // ============================================================
-        loginForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            hideMsg();
+        hideMsg();
+    });
+});
 
-            var account = document.getElementById('loginAccount').value.trim();
-            var password = document.getElementById('loginPassword').value.trim();
+// ============================================================
+// 6. 工具函数
+// ============================================================
+function isEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
 
-            if (!account || !password) {
-                showMsg('请填写完整的登录信息', 'error');
-                return;
+// ============================================================
+// 7. 保存用户数据到 Cookie 和 SessionStorage
+// ============================================================
+function saveUserSession(userData, remember) {
+    var sessionData = {
+        isLoggedIn: 'true',
+        userId: userData.id || '',
+        email: userData.email || '',
+        displayName: userData.email ? userData.email.split('@')[0] : '',
+        role: userData.role || 'user',
+        loginTime: new Date().toISOString()
+    };
+
+    // 保存到 SessionStorage（浏览器会话期间有效）
+    sessionStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('userId', sessionData.userId);
+    sessionStorage.setItem('userEmail', sessionData.email);
+    sessionStorage.setItem('displayName', sessionData.displayName);
+    sessionStorage.setItem('role', sessionData.role);
+
+    // 如果勾选了"记住我"，保存到 Cookie（7天有效）
+    if (remember) {
+        CookieHelper.set('userSession', JSON.stringify(sessionData), 7);
+        CookieHelper.set('isLoggedIn', 'true', 7);
+        CookieHelper.set('userId', sessionData.userId, 7);
+        CookieHelper.set('userEmail', sessionData.email, 7);
+        CookieHelper.set('displayName', sessionData.displayName, 7);
+        CookieHelper.set('role', sessionData.role, 7);
+    } else {
+        // 没有勾选"记住我"，保存会话Cookie（浏览器关闭即失效）
+        CookieHelper.set('userSession', JSON.stringify(sessionData), null);
+        CookieHelper.set('isLoggedIn', 'true', null);
+        CookieHelper.set('userId', sessionData.userId, null);
+        CookieHelper.set('userEmail', sessionData.email, null);
+        CookieHelper.set('displayName', sessionData.displayName, null);
+        CookieHelper.set('role', sessionData.role, null);
+    }
+}
+
+// ============================================================
+// 8. 清除用户会话
+// ============================================================
+function clearUserSession() {
+    sessionStorage.clear();
+    CookieHelper.delete('userSession');
+    CookieHelper.delete('isLoggedIn');
+    CookieHelper.delete('userId');
+    CookieHelper.delete('userEmail');
+    CookieHelper.delete('displayName');
+    CookieHelper.delete('role');
+    CookieHelper.delete('sb-auth-token');
+}
+
+// ============================================================
+// 9. 登录处理
+// ============================================================
+loginForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    hideMsg();
+
+    var account = document.getElementById('loginAccount').value.trim();
+    var password = document.getElementById('loginPassword').value.trim();
+    var remember = rememberMe.checked;
+
+    if (!account || !password) {
+        showMsg('请填写完整的登录信息', 'error');
+        return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = '登录中...';
+
+    try {
+        var email = account;
+
+        // 如果不是邮箱格式，查询 profiles 表获取对应的邮箱
+        if (!isEmail(account)) {
+            var { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('username', account)
+                .maybeSingle();
+
+            if (profileError) {
+                console.warn('查询 profiles 失败:', profileError);
             }
 
-            loginBtn.disabled = true;
-            loginBtn.textContent = '登录中...';
-
-            try {
-                var email = account;
-
-                // 如果不是邮箱格式，查询 profiles 表获取对应的邮箱
-                if (!isEmail(account)) {
-                    var { data: profile, error: profileError } = await supabase
-                        .from('profiles')
-                        .select('email')
-                        .eq('username', account)
-                        .maybeSingle();
-
-                    if (profileError) {
-                        console.warn('查询 profiles 失败:', profileError);
-                    }
-
-                    if (profile && profile.email) {
-                        email = profile.email;
-                    } else {
-                        // 如果查不到，尝试用 account + @zirui.com 作为邮箱（兼容旧数据）
-                        email = account + '@zirui.com';
-                    }
-                }
-
-                // 用邮箱登录
-                var { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password,
-                });
-
-                if (error) {
-                    showMsg('登录失败：' + error.message, 'error');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = '登录';
-                    return;
-                }
-
-                handleLoginSuccess(data);
-
-            } catch (err) {
-                showMsg('网络错误，请稍后重试', 'error');
-                loginBtn.disabled = false;
-                loginBtn.textContent = '登录';
+            if (profile && profile.email) {
+                email = profile.email;
+            } else {
+                // 如果查不到，尝试用 account + @zirui.com 作为邮箱（兼容旧数据）
+                email = account + '@zirui.com';
             }
+        }
+
+        // 用邮箱登录
+        var { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
         });
 
-        function handleLoginSuccess(data) {
+        if (error) {
+            showMsg('登录失败：' + error.message, 'error');
+            loginBtn.disabled = false;
+            loginBtn.textContent = '登录';
+            return;
+        }
+
+        if (data && data.user) {
+            // 保存用户会话
+            saveUserSession({
+                id: data.user.id,
+                email: data.user.email,
+                role: 'user'
+            }, remember);
+
+            // 如果有 session，保存到 Cookie
+            if (data.session) {
+                CookieHelper.set('sb-auth-token', JSON.stringify({
+                    access_token: data.session.access_token,
+                    refresh_token: data.session.refresh_token,
+                    expires_at: data.session.expires_at
+                }), remember ? 7 : null);
+            }
+
             showMsg('登录成功！正在跳转...', 'success');
-
-            sessionStorage.setItem('isLoggedIn', 'true');
-            sessionStorage.setItem('username', data.user.email.split('@')[0]);
-            sessionStorage.setItem('displayName', data.user.email);
-            sessionStorage.setItem('role', 'user');
-            sessionStorage.setItem('userId', data.user.id);
 
             setTimeout(function() {
                 window.location.href = 'dashboard.html';
             }, 1200);
+        } else {
+            showMsg('登录异常，请稍后重试', 'error');
+            loginBtn.disabled = false;
+            loginBtn.textContent = '登录';
         }
 
-        // ============================================================
-        // 7. 注册处理
-        // ============================================================
-        registerForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            hideMsg();
+    } catch (err) {
+        console.error('登录错误:', err);
+        showMsg('网络错误，请稍后重试', 'error');
+        loginBtn.disabled = false;
+        loginBtn.textContent = '登录';
+    }
+});
 
-            var account = document.getElementById('regAccount').value.trim();
-            var email = document.getElementById('regEmail').value.trim();
-            var password = document.getElementById('regPassword').value.trim();
-            var confirm = document.getElementById('regConfirm').value.trim();
+// ============================================================
+// 10. 注册处理
+// ============================================================
+registerForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    hideMsg();
 
-            if (!account || !email || !password || !confirm) {
-                showMsg('请填写完整的注册信息', 'error');
-                return;
-            }
+    var account = document.getElementById('regAccount').value.trim();
+    var email = document.getElementById('regEmail').value.trim();
+    var password = document.getElementById('regPassword').value.trim();
+    var confirm = document.getElementById('regConfirm').value.trim();
 
-            if (account.length < 2) {
-                showMsg('用户名至少2个字符', 'error');
-                return;
-            }
+    if (!account || !email || !password || !confirm) {
+        showMsg('请填写完整的注册信息', 'error');
+        return;
+    }
 
-            if (!isEmail(email)) {
-                showMsg('请输入正确的邮箱格式', 'error');
-                return;
-            }
+    if (account.length < 2) {
+        showMsg('用户名至少2个字符', 'error');
+        return;
+    }
 
-            if (password.length < 6) {
-                showMsg('密码长度不能少于6位', 'error');
-                return;
-            }
+    if (!isEmail(email)) {
+        showMsg('请输入正确的邮箱格式', 'error');
+        return;
+    }
 
-            if (password !== confirm) {
-                showMsg('两次输入的密码不一致', 'error');
-                return;
-            }
+    if (password.length < 6) {
+        showMsg('密码长度不能少于6位', 'error');
+        return;
+    }
 
-            regBtn.disabled = true;
-            regBtn.textContent = '注册中...';
+    if (password !== confirm) {
+        showMsg('两次输入的密码不一致', 'error');
+        return;
+    }
 
+    regBtn.disabled = true;
+    regBtn.textContent = '注册中...';
+
+    try {
+        // 先注册 Supabase Auth
+        var { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            showMsg('注册失败：' + error.message, 'error');
+            regBtn.disabled = false;
+            regBtn.textContent = '注册';
+            return;
+        }
+
+        if (data.user) {
+            // 注册成功，保存用户名到 profiles 表
             try {
-                // 先注册 Supabase Auth
-                var { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                });
+                var { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: data.user.id,
+                        username: account,
+                        email: email,
+                        created_at: new Date().toISOString()
+                    });
 
-                if (error) {
-                    showMsg('注册失败：' + error.message, 'error');
-                    regBtn.disabled = false;
-                    regBtn.textContent = '注册';
-                    return;
+                if (profileError) {
+                    console.warn('保存用户名失败：', profileError);
                 }
+            } catch (e) {
+                console.warn('保存用户名出错：', e);
+            }
 
-                if (data.user) {
-                    // 注册成功，保存用户名到 profiles 表
-                    try {
-                        var { error: profileError } = await supabase
-                            .from('profiles')
-                            .insert({
-                                id: data.user.id,
-                                username: account,
-                                email: email,
-                                created_at: new Date().toISOString()
-                            });
+            showMsg('注册成功！' + (data.session ? '已自动登录，正在跳转...' : '请查收邮箱验证邮件'), 'success');
 
-                        if (profileError) {
-                            console.warn('保存用户名失败：', profileError);
-                        }
-                    } catch (e) {
-                        console.warn('保存用户名出错：', e);
-                    }
+            if (data.session) {
+                // 保存会话
+                saveUserSession({
+                    id: data.user.id,
+                    email: data.user.email,
+                    role: 'user'
+                }, true);
 
-                    showMsg('注册成功！' + (data.session ? '已自动登录，正在跳转...' : '请查收邮箱验证邮件'), 'success');
+                CookieHelper.set('sb-auth-token', JSON.stringify({
+                    access_token: data.session.access_token,
+                    refresh_token: data.session.refresh_token,
+                    expires_at: data.session.expires_at
+                }), 7);
 
-                    if (data.session) {
-                        sessionStorage.setItem('isLoggedIn', 'true');
-                        sessionStorage.setItem('username', account);
-                        sessionStorage.setItem('displayName', email);
-                        sessionStorage.setItem('role', 'user');
-                        sessionStorage.setItem('userId', data.user.id);
+                setTimeout(function() {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                // 需要邮箱验证，重定向到登录页
+                setTimeout(function() {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        } else {
+            showMsg('注册异常，请稍后重试', 'error');
+            regBtn.disabled = false;
+            regBtn.textContent = '注册';
+        }
 
-                        setTimeout(function() {
-                            window.location.href = 'dashboard.html';
-                        }, 1500);
-                    } else {
-                        setTimeout(function() {
-                            window.location.href = 'login.html';
-                        }, 2000);
-                    }
-                } else {
-                    showMsg('注册异常，请稍后重试', 'error');
-                    regBtn.disabled = false;
-                    regBtn.textContent = '注册';
-                }
+    } catch (err) {
+        console.error('注册错误:', err);
+        showMsg('网络错误，请稍后重试', 'error');
+        regBtn.disabled = false;
+        regBtn.textContent = '注册';
+    }
+});
 
-            } catch (err) {
-                showMsg('网络错误，请稍后重试', 'error');
-                regBtn.disabled = false;
-                regBtn.textContent = '注册';
+// ============================================================
+// 11. 检查是否已登录（优先检查 Cookie）
+// ============================================================
+(function checkSession() {
+    // 先从 Cookie 检查
+    var isLoggedIn = CookieHelper.get('isLoggedIn');
+    var userSession = CookieHelper.get('userSession');
+    
+    if (isLoggedIn === 'true' && userSession) {
+        try {
+            var sessionData = JSON.parse(userSession);
+            // 恢复 SessionStorage
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userId', sessionData.userId || '');
+            sessionStorage.setItem('userEmail', sessionData.email || '');
+            sessionStorage.setItem('displayName', sessionData.displayName || '');
+            sessionStorage.setItem('role', sessionData.role || 'user');
+            
+            // 如果用户已登录，跳转到 dashboard
+            window.location.href = 'dashboard.html';
+            return;
+        } catch (e) {
+            console.warn('解析用户会话失败:', e);
+        }
+    }
+    
+    // 如果 Cookie 没有，检查 SessionStorage
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        window.location.href = 'dashboard.html';
+        return;
+    }
+    
+    // 检查 URL 中是否有认证回调参数（Supabase OAuth）
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+        // 让 Supabase 处理 OAuth 回调
+        supabase.auth.getSession().then(function(result) {
+            if (result.data && result.data.session) {
+                var user = result.data.session.user;
+                saveUserSession({
+                    id: user.id,
+                    email: user.email,
+                    role: 'user'
+                }, true);
+                
+                setTimeout(function() {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
             }
         });
+    }
+})();
 
-        // ============================================================
-        // 8. 申诉处理
-        // ============================================================
-        document.getElementById('appealLink').addEventListener('click', function(e) {
-            e.preventDefault();
-            var email = prompt('请输入你的注册邮箱，我们将发送申诉链接：');
-            if (email && email.trim()) {
-                showMsg('申诉邮件已发送至 ' + email.trim() + '，请查收', 'success');
-            }
-        });
+// ============================================================
+// 12. 深色模式
+// ============================================================
+(function syncTheme() {
+    var savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+})();
 
-        // ============================================================
-        // 9. 检查是否已登录
-        // ============================================================
-        (function checkSession() {
-            if (sessionStorage.getItem('isLoggedIn') === 'true') {
-                window.location.href = 'dashboard.html';
-            }
-        })();
-
-        // ============================================================
-        // 10. 深色模式
-        // ============================================================
-        (function syncTheme() {
-            var savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-
-        console.log('✅ 登录页面已加载');
+console.log('✅ 登录页面已加载（支持 Cookie 持久化）');
+console.log('当前 Cookie:', CookieHelper.getAll());
     </script>
 
 </body>
