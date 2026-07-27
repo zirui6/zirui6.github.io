@@ -599,41 +599,28 @@ if (themeToggle) {
 }
 
 // ============================================================
-// 8. 大胶囊点击事件
+// 8. 大胶囊点击事件（悬停已自动展开，点击执行功能）
 // ============================================================
 document.querySelectorAll('.big-capsule').forEach(function(capsule) {
     capsule.addEventListener('click', function(e) {
         e.stopPropagation();
-        if (this.classList.contains('expanded')) {
-            var id = this.id;
-            if (id === 'goTopCapsule') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(function() { capsule.classList.remove('expanded'); }, 500);
-            } else if (id === 'goBottomCapsule') {
-                window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-                setTimeout(function() { capsule.classList.remove('expanded'); }, 500);
-            } else if (id === 'contactCapsule') {
-                var popup = document.getElementById('contactPopup');
-                if (popup) popup.classList.toggle('open');
-            } else if (id === 'aiEntry') {
-                alert('AI 助手功能开发中...');
-            } else if (id === 'driveEntry') {
-                alert('我的网盘功能开发中...');
-            }
-            return;
+        var id = this.id;
+        if (id === 'goTopCapsule') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (id === 'goBottomCapsule') {
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+        } else if (id === 'contactCapsule') {
+            var popup = document.getElementById('contactPopup');
+            if (popup) popup.classList.toggle('open');
+        } else if (id === 'aiEntry') {
+            alert('AI 助手功能开发中...');
+        } else if (id === 'driveEntry') {
+            alert('我的网盘功能开发中...');
         }
-        this.classList.add('expanded');
     });
 });
 
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.big-capsule')) {
-        document.querySelectorAll('.big-capsule.expanded').forEach(function(c) {
-            c.classList.remove('expanded');
-        });
-    }
-});
-
+// 点击空白关闭弹出框（保留原有逻辑）
 document.addEventListener('click', function(e) {
     if (notifOpen && notifPopup && !notifPopup.contains(e.target) && e.target !== notifToggle) {
         notifOpen = false;
@@ -650,23 +637,6 @@ document.addEventListener('click', function(e) {
             popup.classList.remove('open');
         }
     }
-});
-
-var topbar = document.getElementById('topbar');
-window.addEventListener('scroll', function() {
-    if (topbar) {
-        topbar.classList.toggle('scrolled', window.scrollY > 20);
-    }
-}, { passive: true });
-
-document.querySelectorAll('.nav-func a').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-        var target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
 });
 
 // ============================================================

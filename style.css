@@ -1,14 +1,13 @@
 /* ============================================================
-   直角全宽主题 - 背景图版 + 透明度优化 + 悬浮球缩小
+   梓睿官网 - 高级动态主题 v2.0
+   玻璃拟态 + 微交互 + 滚动动画 + 3D悬浮
    ============================================================ */
 
 /* --- 变量 --- */
-/* --- 变量（默认就是深色模式） --- */
 :root {
-    /* 深色模式为主 */
     --bg-body: rgba(10, 22, 40, 0.92);
-    --bg-card: rgba(17, 29, 51, 0.85);
-    --bg-topbar: rgba(17, 29, 51, 0.88);
+    --bg-card: rgba(17, 29, 51, 0.75);
+    --bg-topbar: rgba(17, 29, 51, 0.80);
     --text-primary: #e8edf4;
     --text-secondary: #a8b9d0;
     --text-muted: #6b7f96;
@@ -18,21 +17,23 @@
     --shadow-lg: 0 20px 64px rgba(0, 0, 0, 0.5);
     --accent: #4a8fd8;
     --accent-light: rgba(74, 143, 216, 0.15);
+    --accent-glow: rgba(74, 143, 216, 0.35);
     --footer-bg: rgba(6, 14, 28, 0.92);
     --footer-text: #6b7f96;
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 16px;
     --transition: 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     --font: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     --max-width: 100%;
 }
 
-/* --- 浅色模式（点击切换） --- */
+/* --- 浅色模式 --- */
 [data-theme="light"] {
     --bg-body: rgba(238, 242, 247, 0.75);
-    --bg-card: rgba(255, 255, 255, 0.82);
-    --bg-topbar: rgba(255, 255, 255, 0.78);
+    --bg-card: rgba(255, 255, 255, 0.72);
+    --bg-topbar: rgba(255, 255, 255, 0.70);
     --text-primary: #0b1a2e;
     --text-secondary: #2c3e5a;
     --text-muted: #6b7f96;
@@ -42,9 +43,71 @@
     --shadow-lg: 0 20px 64px rgba(11, 26, 46, 0.12);
     --accent: #1a4b8c;
     --accent-light: rgba(26, 75, 140, 0.10);
+    --accent-glow: rgba(26, 75, 140, 0.25);
     --footer-bg: rgba(11, 26, 46, 0.88);
     --footer-text: #a8b9d0;
 }
+
+/* --- 全局动画关键帧 --- */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+    50% { box-shadow: 0 0 20px 4px var(--accent-glow); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes breathe {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* --- 滚动触发动画类 --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
 
 /* --- 重置 --- */
 * {
@@ -67,6 +130,7 @@ body {
     transition: background var(--transition), color var(--transition);
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 a {
     text-decoration: none;
@@ -91,11 +155,38 @@ button {
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    opacity: 0.8;
+    background: linear-gradient(180deg, var(--accent), #4a8fd8);
 }
 
 /* ============================================================
-   全宽顶栏
+   加载动画 - 高级版
+   ============================================================ */
+#loadingOverlay {
+    background: rgba(10, 22, 40, 0.95) !important;
+    backdrop-filter: blur(20px) saturate(1.5);
+}
+[data-theme="light"] #loadingOverlay {
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+#loadingOverlay div:first-child {
+    width: 56px !important;
+    height: 56px !important;
+    border-width: 3px !important;
+    border-top-color: var(--accent) !important;
+    border-right-color: transparent !important;
+    border-bottom-color: var(--accent) !important;
+    border-left-color: transparent !important;
+    animation: spin 1s linear infinite, pulse-glow 2s ease-in-out infinite !important;
+}
+#loadingOverlay p:first-of-type {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px !important;
+    animation: breathe 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   全宽顶栏 - 玻璃拟态增强
    ============================================================ */
 .topbar {
     position: sticky;
@@ -107,16 +198,19 @@ button {
     align-items: center;
     justify-content: space-between;
     background: var(--bg-topbar);
-    backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
     border-bottom: 1px solid var(--border-color);
-    transition: background var(--transition), border-color var(--transition);
+    transition: all var(--transition);
     width: 100%;
+    animation: fadeInUp 0.6s ease-out;
 }
 .topbar.scrolled {
-    box-shadow: 0 4px 24px rgba(11, 26, 46, 0.08);
+    box-shadow: 0 4px 30px rgba(11, 26, 46, 0.15);
+    background: rgba(17, 29, 51, 0.92);
 }
 [data-theme="dark"] .topbar.scrolled {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 .topbar .left {
     display: flex;
@@ -127,10 +221,16 @@ button {
     display: flex;
     align-items: center;
     gap: 10px;
+    transition: transform var(--transition);
+}
+.topbar .logo:hover {
+    transform: scale(1.05);
 }
 .topbar .logo img {
     height: 42px;
     width: auto;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+    transition: filter var(--transition);
 }
 .topbar .nav-func {
     display: flex;
@@ -142,7 +242,7 @@ button {
     position: relative;
     padding: 6px 0;
     color: var(--text-secondary);
-    transition: color var(--transition);
+    transition: all var(--transition);
 }
 .topbar .nav-func a::after {
     content: "";
@@ -154,9 +254,11 @@ button {
     background: linear-gradient(90deg, var(--accent), #4a8fd8);
     transition: all var(--transition);
     transform: translateX(-50%);
+    border-radius: 2px;
 }
 .topbar .nav-func a:hover {
     color: var(--text-primary);
+    transform: translateY(-1px);
 }
 .topbar .nav-func a:hover::after {
     width: 100%;
@@ -166,19 +268,38 @@ button {
     align-items: center;
     gap: 16px;
 }
+
+/* 登录按钮 - 流光效果 */
 .topbar .right .login-btn {
     padding: 9px 24px;
-    background: linear-gradient(135deg, #1a4b8c, #2c6ba8);
+    background: linear-gradient(135deg, #1a4b8c, #2c6ba8, #1a4b8c);
+    background-size: 200% 200%;
     color: #fff;
     font-size: 14px;
     font-weight: 600;
     transition: all var(--transition);
-    box-shadow: 0 2px 8px rgba(26, 75, 140, 0.25);
+    box-shadow: 0 2px 12px rgba(26, 75, 140, 0.3);
     border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+    animation: gradientShift 3s ease infinite;
+}
+.topbar .right .login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
 }
 .topbar .right .login-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(26, 75, 140, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(26, 75, 140, 0.4);
+}
+.topbar .right .login-btn:hover::before {
+    left: 100%;
 }
 .topbar .right .settings-btn {
     width: 42px;
@@ -192,21 +313,25 @@ button {
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
 }
 .topbar .right .settings-btn:hover {
-    transform: rotate(60deg);
+    transform: rotate(90deg) scale(1.1);
     border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
 }
 
-/* --- 设置小条 - 悬浮长方形紧贴顶栏 --- */
+/* --- 设置小条 --- */
 .settings-bar {
     position: sticky;
-    top: 72px;  /* 紧贴顶栏底部 */
+    top: 72px;
     z-index: 1008;
     max-height: 0;
     overflow: hidden;
     background: var(--bg-card);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
     padding: 0 48px;
     border-bottom: 1px solid transparent;
     transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -219,8 +344,8 @@ button {
     padding: 12px 48px;
     border-bottom-color: var(--border-color);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    animation: fadeInScale 0.3s ease;
 }
-
 .settings-bar .inner {
     display: flex;
     gap: 20px;
@@ -245,13 +370,18 @@ button {
     color: var(--text-primary);
     border-radius: var(--radius-lg);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 .settings-bar .inner .pill:hover {
     border-color: var(--accent);
     background: var(--accent-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-glow);
 }
 .settings-bar .inner .dot {
     color: var(--text-muted);
+    animation: pulse-glow 2s infinite;
 }
 
 /* --- 主容器 --- */
@@ -263,7 +393,7 @@ button {
 }
 
 /* ============================================================
-   五栏滑动展示 - 顶边无圆角
+   轮播 - 电影级过渡
    ============================================================ */
 .carousel-wrap {
     position: relative;
@@ -273,10 +403,11 @@ button {
     margin-bottom: 28px;
     width: 100%;
     backdrop-filter: blur(4px);
+    animation: fadeInUp 0.8s ease-out;
 }
 .carousel-track {
     display: flex;
-    transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
 }
 .carousel-slide {
     min-width: 100%;
@@ -289,6 +420,7 @@ button {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    animation: fadeInScale 0.6s ease-out;
 }
 .carousel-slide .slide-badge {
     display: inline-block;
@@ -302,6 +434,7 @@ button {
     margin-bottom: 12px;
     backdrop-filter: blur(4px);
     border-radius: var(--radius-lg);
+    animation: slideInRight 0.6s ease-out 0.2s both;
 }
 [data-theme="dark"] .carousel-slide .slide-badge {
     background: rgba(255, 255, 255, 0.10);
@@ -314,6 +447,11 @@ button {
     letter-spacing: -1px;
     line-height: 1.2;
     max-width: 780px;
+    animation: fadeInUp 0.6s ease-out 0.3s both;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 .carousel-slide p {
     font-size: 18px;
@@ -321,6 +459,7 @@ button {
     max-width: 520px;
     line-height: 1.7;
     margin-top: 12px;
+    animation: fadeInUp 0.6s ease-out 0.4s both;
 }
 .carousel-slide .btn-detail {
     margin-top: 24px;
@@ -336,10 +475,26 @@ button {
     transition: all var(--transition);
     box-shadow: 0 4px 16px rgba(26, 75, 140, 0.25);
     border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out 0.5s both;
+}
+.carousel-slide .btn-detail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s;
 }
 .carousel-slide .btn-detail:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(26, 75, 140, 0.35);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 36px rgba(26, 75, 140, 0.4);
+}
+.carousel-slide .btn-detail:hover::before {
+    left: 100%;
 }
 
 .carousel-dots {
@@ -357,10 +512,12 @@ button {
     background: rgba(11, 26, 46, 0.20);
     transition: all var(--transition);
     cursor: pointer;
+    border-radius: 4px;
 }
 .carousel-dots .dot.active {
     background: var(--accent);
     width: 28px;
+    box-shadow: 0 0 10px var(--accent-glow);
 }
 .carousel-btn {
     position: absolute;
@@ -380,21 +537,19 @@ button {
     align-items: center;
     justify-content: center;
     z-index: 6;
+    border-radius: 50%;
 }
 .carousel-wrap:hover .carousel-btn {
     opacity: 0.7;
 }
 .carousel-btn:hover {
     opacity: 1 !important;
-    transform: translateY(-50%) scale(1.05);
+    transform: translateY(-50%) scale(1.1);
     background: #ffffff;
+    box-shadow: 0 0 20px var(--accent-glow);
 }
-.carousel-btn.prev {
-    left: 16px;
-}
-.carousel-btn.next {
-    right: 16px;
-}
+.carousel-btn.prev { left: 24px; }
+.carousel-btn.next { right: 24px; }
 [data-theme="dark"] .carousel-slide::after {
     content: "";
     position: absolute;
@@ -411,20 +566,40 @@ button {
 }
 
 /* ============================================================
-   通用区块 - 直角无边框
+   通用区块 - 3D悬浮卡片
    ============================================================ */
 .section-block {
     background: var(--bg-card);
     padding: 28px 36px 32px;
     margin-bottom: 28px;
     box-shadow: var(--shadow-sm);
-    transition: box-shadow var(--transition), background var(--transition);
+    transition: all var(--transition);
     width: 100%;
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
     border: 1px solid var(--border-color);
+    animation: fadeInUp 0.8s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+.section-block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity var(--transition);
 }
 .section-block:hover {
     box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: rgba(74, 143, 216, 0.3);
+}
+.section-block:hover::before {
+    opacity: 0.5;
 }
 .section-header {
     display: flex;
@@ -440,6 +615,17 @@ button {
     align-items: center;
     gap: 10px;
     color: var(--text-primary);
+    position: relative;
+}
+.section-header h3::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    border-radius: 2px;
 }
 .section-header .more-btn {
     font-size: 14px;
@@ -449,10 +635,19 @@ button {
     background: var(--accent-light);
     transition: all var(--transition);
     border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+}
+.section-header .more-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px var(--accent-glow);
 }
 
 /* ============================================================
-   最新动态
+   最新动态 - 优雅列表
    ============================================================ */
 .log-item {
     padding: 16px 20px 16px 24px;
@@ -465,19 +660,26 @@ button {
     flex-wrap: wrap;
     align-items: center;
     gap: 12px 24px;
+    animation: fadeInUp 0.5s ease-out both;
 }
 .log-item::before {
     content: "";
     position: absolute;
     left: 0;
-    top: 14px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 3px;
     height: 0;
     background: linear-gradient(180deg, var(--accent), #4a8fd8);
     transition: height var(--transition);
+    border-radius: 2px;
 }
 .log-item:hover::before {
     height: 60%;
+}
+.log-item:hover {
+    background: rgba(74, 143, 216, 0.03);
+    padding-left: 28px;
 }
 .log-item:last-child {
     border-bottom: none;
@@ -497,6 +699,12 @@ button {
     font-size: 12px;
     font-weight: 600;
     border-radius: var(--radius-lg);
+    transition: all var(--transition);
+}
+.log-item:hover .log-meta .tag {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px var(--accent-glow);
 }
 .log-item .log-title {
     font-size: 17px;
@@ -504,22 +712,32 @@ button {
     color: var(--text-primary);
     flex: 1;
     min-width: 200px;
+    transition: color var(--transition);
+}
+.log-item:hover .log-title {
+    color: var(--accent);
 }
 .log-item .log-title .prefix {
     color: var(--accent);
     margin-right: 6px;
+    transition: transform var(--transition);
+    display: inline-block;
+}
+.log-item:hover .log-title .prefix {
+    transform: translateX(4px);
 }
 .log-item.hidden {
     display: none;
 }
 
 /* ============================================================
-   产品区
+   产品区 - 3D倾斜卡片
    ============================================================ */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
+    perspective: 1000px;
 }
 .product-card {
     overflow: hidden;
@@ -528,10 +746,16 @@ button {
     background: var(--bg-card);
     border-radius: var(--radius-md);
     backdrop-filter: blur(4px);
+    animation: fadeInScale 0.6s ease-out both;
+    position: relative;
 }
+.product-card:nth-child(1) { animation-delay: 0.05s; }
+.product-card:nth-child(2) { animation-delay: 0.1s; }
+.product-card:nth-child(3) { animation-delay: 0.15s; }
+.product-card:nth-child(4) { animation-delay: 0.2s; }
 .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-8px) rotateX(2deg);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 143, 216, 0.2);
     border-color: var(--accent);
 }
 .product-card .img-wrap {
@@ -544,12 +768,28 @@ button {
     font-size: 36px;
     color: var(--text-muted);
     overflow: hidden;
+    position: relative;
+}
+.product-card .img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.3));
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+.product-card:hover .img-wrap::after {
+    opacity: 1;
 }
 .product-card .img-wrap img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.product-card:hover .img-wrap img {
+    transform: scale(1.08);
 }
 .product-card .info {
     padding: 16px 18px 18px;
@@ -559,6 +799,10 @@ button {
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 2px;
+    transition: color var(--transition);
+}
+.product-card:hover .info .name {
+    color: var(--accent);
 }
 .product-card .info .desc {
     font-size: 14px;
@@ -587,32 +831,33 @@ button {
     flex: 1;
     justify-content: center;
     border-radius: var(--radius-sm);
+    position: relative;
+    overflow: hidden;
 }
 .product-card .info .actions .view-btn {
     background: linear-gradient(135deg, #1a4b8c, #2c6ba8);
     color: #fff;
     border-color: transparent;
-    border-radius: var(--radius-sm);
 }
 .product-card .info .actions .view-btn:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(26, 75, 140, 0.4);
 }
 .product-card .info .actions .download-btn {
     background: transparent;
     color: var(--text-primary);
-    border-radius: var(--radius-sm);
 }
 .product-card .info .actions .download-btn:hover {
     background: var(--bg-body);
     border-color: var(--accent);
+    color: var(--accent);
 }
 .product-card.hidden {
     display: none;
 }
 
 /* ============================================================
-   文章区
+   文章区 - 优雅悬停
    ============================================================ */
 .article-item {
     padding: 16px 20px;
@@ -620,11 +865,27 @@ button {
     cursor: pointer;
     transition: all var(--transition);
     margin-bottom: 2px;
+    animation: fadeInUp 0.5s ease-out both;
+    position: relative;
+}
+.article-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    transition: width var(--transition);
+    border-radius: 2px;
 }
 .article-item:hover {
     background: var(--bg-body);
     padding-left: 26px;
     border-color: var(--accent);
+}
+.article-item:hover::before {
+    width: 3px;
 }
 .article-item:last-child {
     border-bottom: none;
@@ -643,12 +904,21 @@ button {
     font-weight: 600;
     color: var(--text-secondary);
     border-radius: var(--radius-lg);
+    transition: all var(--transition);
+}
+.article-item:hover .art-meta .art-tag {
+    background: var(--accent-light);
+    color: var(--accent);
 }
 .article-item .art-title {
     font-size: 18px;
     font-weight: 700;
     color: var(--text-primary);
     margin-top: 2px;
+    transition: color var(--transition);
+}
+.article-item:hover .art-title {
+    color: var(--accent);
 }
 .article-item .art-sub {
     font-size: 15px;
@@ -660,13 +930,14 @@ button {
 }
 
 /* ============================================================
-   联系方式 - 直角无边框
+   联系方式 - 玻璃卡片
    ============================================================ */
 .contact-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 32px;
     padding: 28px 36px 24px;
+    animation: fadeInUp 0.8s ease-out;
 }
 .contact-left .contact-title {
     font-size: 18px;
@@ -685,6 +956,11 @@ button {
     display: flex;
     align-items: center;
     gap: 12px;
+    transition: all var(--transition);
+}
+.contact-left .contact-item:hover {
+    color: var(--text-primary);
+    padding-left: 8px;
 }
 .contact-left .contact-item:last-child {
     border-bottom: none;
@@ -693,6 +969,10 @@ button {
     font-size: 18px;
     width: 28px;
     text-align: center;
+    transition: transform var(--transition);
+}
+.contact-left .contact-item:hover .icon {
+    transform: scale(1.2);
 }
 .contact-left .contact-item strong {
     color: var(--text-primary);
@@ -706,6 +986,12 @@ button {
     padding: 24px;
     border: 1px dashed var(--border-color);
     backdrop-filter: blur(4px);
+    transition: all var(--transition);
+    border-radius: var(--radius-md);
+}
+.contact-right:hover {
+    border-color: var(--accent);
+    box-shadow: 0 8px 32px rgba(26, 75, 140, 0.1);
 }
 .contact-right .qr-wrap {
     width: 130px;
@@ -721,10 +1007,12 @@ button {
     transition: all var(--transition);
     text-align: center;
     flex-direction: column;
+    border-radius: var(--radius-md);
 }
 .contact-right .qr-wrap:hover {
     border-color: var(--accent);
-    box-shadow: 0 4px 16px rgba(26, 75, 140, 0.10);
+    box-shadow: 0 4px 20px rgba(26, 75, 140, 0.15);
+    transform: translateY(-2px);
 }
 .contact-right .qr-label {
     font-size: 14px;
@@ -751,6 +1039,18 @@ button {
     width: fit-content;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
+    position: relative;
+    overflow: hidden;
+}
+.version-section .version-badge::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(74,143,216,0.1), transparent);
+    animation: shimmer 3s infinite;
 }
 .version-section .changelog {
     font-size: 15px;
@@ -761,6 +1061,10 @@ button {
 .version-section .changelog li {
     list-style: none;
     padding: 2px 0;
+    transition: transform var(--transition);
+}
+.version-section .changelog li:hover {
+    transform: translateX(4px);
 }
 .version-section .changelog li::before {
     content: "▸ ";
@@ -769,7 +1073,7 @@ button {
 }
 
 /* ============================================================
-   底部 - 直角铺满
+   底部 - 精致铺满
    ============================================================ */
 .footer {
     background: var(--footer-bg);
@@ -779,6 +1083,7 @@ button {
     width: 100%;
     backdrop-filter: blur(8px);
     border-top: 1px solid var(--border-color);
+    animation: fadeInUp 0.6s ease-out;
 }
 .footer .footer-links {
     display: flex;
@@ -789,10 +1094,24 @@ button {
     margin-bottom: 18px;
 }
 .footer .footer-links a {
-    transition: color var(--transition);
+    transition: all var(--transition);
+    position: relative;
+}
+.footer .footer-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width var(--transition);
 }
 .footer .footer-links a:hover {
     color: #fff;
+}
+.footer .footer-links a:hover::after {
+    width: 100%;
 }
 .footer .footer-copy {
     font-size: 13px;
@@ -807,7 +1126,7 @@ button {
 }
 
 /* ============================================================
-   弹出框 - 圆角
+   弹出框 - 弹性动画
    ============================================================ */
 .contact-popup,
 .notif-popup,
@@ -821,9 +1140,10 @@ button {
     z-index: 901;
     min-width: 240px;
     border: 1px solid var(--border-color);
-    animation: popUp 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: popUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     border-radius: var(--radius-md);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
 }
 .contact-popup.open,
 .notif-popup.open,
@@ -834,7 +1154,7 @@ button {
 @keyframes popUp {
     from {
         opacity: 0;
-        transform: translateY(16px) scale(0.96);
+        transform: translateY(20px) scale(0.9);
     }
     to {
         opacity: 1;
@@ -873,6 +1193,11 @@ button {
     display: flex;
     align-items: center;
     gap: 10px;
+    transition: all var(--transition);
+}
+.popup-item:hover {
+    color: var(--text-primary);
+    padding-left: 4px;
 }
 .popup-item .icon {
     font-size: 16px;
@@ -886,18 +1211,31 @@ button {
     font-size: 16px;
     color: var(--text-muted);
     cursor: pointer;
-    transition: color var(--transition);
+    transition: all var(--transition);
     background: none;
     border: none;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 .popup-close:hover {
     color: var(--text-primary);
+    background: var(--bg-body);
+    transform: rotate(90deg);
 }
 .notif-item {
     padding: 10px 0;
     border-bottom: 1px solid var(--border-color);
     font-size: 14px;
     color: var(--text-secondary);
+    transition: all var(--transition);
+}
+.notif-item:hover {
+    color: var(--text-primary);
+    padding-left: 4px;
 }
 .notif-item:last-child {
     border-bottom: none;
@@ -907,6 +1245,10 @@ button {
     font-size: 14px;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--border-color);
+    transition: all var(--transition);
+}
+.stats-item:hover {
+    color: var(--text-primary);
 }
 .stats-item:last-child {
     border-bottom: none;
@@ -914,142 +1256,139 @@ button {
 .stats-item strong {
     color: var(--text-primary);
 }
-.plugin-popup .plugin-item {
-    padding: 8px 0;
-    font-size: 14px;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--border-color);
-    cursor: default;
-}
-.plugin-popup .plugin-item:last-child {
-    border-bottom: none;
-}
-.plugin-popup .plugin-item:hover {
-    color: var(--accent);
-}
 
 /* ============================================================
-   大胶囊入口 - 缩小版
+   大胶囊入口 - 右下角悬停展开 + 弹跳物理感
    ============================================================ */
 .big-capsule-group {
     position: fixed;
-    right: 28px;
-    bottom: 140px;
+    right: 24px;
+    bottom: 24px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     z-index: 850;
+    opacity: 0.55;
+    transition: opacity 0.4s ease;
+}
+
+/* 鼠标移入整个组时恢复不透明 */
+.big-capsule-group:hover {
+    opacity: 1;
 }
 
 .big-capsule {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 5px;
+    gap: 8px;
+    padding: 4px;
     background: var(--bg-card);
     border: 1.5px solid var(--border-color);
     border-radius: 60px;
-    box-shadow: 0 4px 24px rgba(11, 26, 46, 0.10);
+    box-shadow: 0 4px 20px rgba(11, 26, 46, 0.12);
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.45s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     position: relative;
-    backdrop-filter: blur(8px);
-    width: 44px;
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    width: 38px;
+    height: 38px;
     overflow: hidden;
 }
 
-/* 展开状态 */
-.big-capsule.expanded {
-    width: 130px;
-    padding: 5px 16px 5px 5px;
-    border-color: var(--accent);
-    box-shadow: 0 8px 40px rgba(26, 75, 140, 0.20);
-}
-
-/* 悬浮效果 */
+/* 悬停展开（纯CSS，不用JS） */
 .big-capsule:hover {
+    width: 118px;
+    padding: 4px 14px 4px 4px;
     border-color: var(--accent);
-    box-shadow: 0 8px 32px rgba(26, 75, 140, 0.15);
+    box-shadow: 0 8px 32px rgba(26, 75, 140, 0.22);
+    transform: translateX(-4px) scale(1.05);
 }
 
-/* 大圆球图标 - 始终显示 */
+/* 图标 */
 .big-capsule-icon {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     flex-shrink: 0;
-    transition: all 0.3s ease;
+    transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* AI 入口特殊颜色 */
+/* AI 入口 - 持续漂浮 */
 #aiEntry .big-capsule-icon {
     background: rgba(108, 92, 231, 0.15);
+    animation: float 3s ease-in-out infinite;
 }
-#aiEntry.expanded .big-capsule-icon {
+#aiEntry:hover .big-capsule-icon {
     background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    animation: none;
+    transform: rotate(-10deg) scale(1.1);
 }
 
-/* 网盘入口特殊颜色 */
+/* 网盘入口 */
 #driveEntry .big-capsule-icon {
     background: rgba(26, 115, 232, 0.12);
 }
-#driveEntry.expanded .big-capsule-icon {
+#driveEntry:hover .big-capsule-icon {
     background: linear-gradient(135deg, #1a73e8, #4a8fd8);
+    transform: rotate(10deg) scale(1.1);
 }
 
-/* 文字标签 - 默认隐藏 */
+/* 文字标签 - 默认隐藏，悬停从右侧飞入 */
 .big-capsule-label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
     opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: scale(0.7) translateX(8px);
+    transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     transform-origin: left center;
     pointer-events: none;
 }
 
-/* 展开时显示文字 */
-.big-capsule.expanded .big-capsule-label {
+.big-capsule:hover .big-capsule-label {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateX(0);
     pointer-events: auto;
 }
 
 /* 徽章 */
 .big-capsule-badge {
     position: absolute;
-    top: -4px;
-    right: -4px;
-    font-size: 8px;
+    top: -3px;
+    right: -3px;
+    font-size: 7px;
     font-weight: 700;
-    padding: 1px 6px;
+    padding: 1px 5px;
     border-radius: 20px;
     background: #e74c3c;
     color: #fff;
     letter-spacing: 0.3px;
-    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.30);
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.35);
+    animation: pulse-glow 2s infinite;
+    transition: all 0.35s ease;
 }
-.big-capsule.expanded .big-capsule-badge {
-    top: -4px;
-    right: 6px;
+.big-capsule:hover .big-capsule-badge {
+    top: -3px;
+    right: 4px;
+    transform: scale(1.1);
 }
 #driveEntry .big-capsule-badge {
     background: #1a73e8;
-    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.30);
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.35);
 }
 
-/* 深色模式适配 */
+/* 深色模式 */
 [data-theme="dark"] .big-capsule {
     background: var(--bg-card);
     border-color: var(--border-color);
 }
-[data-theme="dark"] .big-capsule.expanded {
+[data-theme="dark"] .big-capsule:hover {
     border-color: var(--accent);
 }
 [data-theme="dark"] .big-capsule-label {
@@ -1062,26 +1401,27 @@ button {
     background: rgba(26, 115, 232, 0.20);
 }
 
-/* --- 联系方式胶囊特殊样式 --- */
+/* 联系胶囊 */
 #contactCapsule .big-capsule-icon {
     background: rgba(26, 115, 232, 0.12);
     color: #1a73e8;
 }
-#contactCapsule.expanded .big-capsule-icon {
+#contactCapsule:hover .big-capsule-icon {
     background: linear-gradient(135deg, #1a73e8, #4a8fd8);
     color: #fff;
+    transform: scale(1.1);
 }
 
-/* --- 上下翻页胶囊特殊样式 --- */
+/* 上下翻页胶囊 */
 #goTopCapsule .big-capsule-icon,
 #goBottomCapsule .big-capsule-icon {
     background: rgba(13, 17, 23, 0.06);
     color: var(--text-primary);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
 }
-#goTopCapsule.expanded .big-capsule-icon,
-#goBottomCapsule.expanded .big-capsule-icon {
+#goTopCapsule:hover .big-capsule-icon,
+#goBottomCapsule:hover .big-capsule-icon {
     background: var(--accent);
     color: #fff;
 }
@@ -1091,93 +1431,33 @@ button {
     background: rgba(255, 255, 255, 0.08);
     color: var(--text-primary);
 }
-[data-theme="dark"] #goTopCapsule.expanded .big-capsule-icon,
-[data-theme="dark"] #goBottomCapsule.expanded .big-capsule-icon {
+[data-theme="dark"] #goTopCapsule:hover .big-capsule-icon,
+[data-theme="dark"] #goBottomCapsule:hover .big-capsule-icon {
     background: var(--accent);
     color: #fff;
 }
 
-/* --- 分隔线 --- */
+/* 分隔线 */
 .capsule-divider {
-    width: 28px;
+    width: 24px;
     height: 1.5px;
     background: var(--border-color);
-    margin: 4px auto;
+    margin: 3px auto;
     border-radius: 4px;
-    transition: background var(--transition);
+    opacity: 0.6;
+    transition: all 0.3s ease;
 }
-[data-theme="dark"] .capsule-divider {
-    background: var(--border-color);
+.big-capsule-group:hover .capsule-divider {
+    opacity: 1;
+    width: 28px;
 }
-
-/* 响应式 - 手机端适配 */
-@media (max-width: 768px) {
-    .big-capsule-group {
-        right: 16px;
-        bottom: 120px;
-        gap: 8px;
-    }
-    .big-capsule {
-        width: 38px;
-        padding: 4px;
-    }
-    .big-capsule-icon {
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
-    }
-    .big-capsule.expanded {
-        width: 110px;
-        padding: 4px 12px 4px 4px;
-    }
-    .big-capsule-label {
-        font-size: 12px;
-    }
-    .capsule-divider {
-        width: 22px;
-    }
-}
-
-@media (max-width: 480px) {
-    .big-capsule-group {
-        right: 12px;
-        bottom: 100px;
-        gap: 6px;
-    }
-    .big-capsule {
-        width: 34px;
-        padding: 3px;
-    }
-    .big-capsule-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
-    }
-    .big-capsule.expanded {
-        width: 100px;
-        padding: 3px 10px 3px 3px;
-    }
-    .big-capsule-label {
-        font-size: 11px;
-    }
-    .capsule-divider {
-        width: 18px;
-    }
-}
-
 /* ============================================================
-   响应式 - 页面布局
+   响应式
    ============================================================ */
 @media (max-width: 1200px) {
-    .topbar {
-        padding: 0 24px;
-    }
-    .settings-bar.open {
-        padding: 12px 24px;
-    }
-    .footer {
-        padding: 28px 24px 24px;
-    }
+    .topbar { padding: 0 24px; }
+    .settings-bar.open { padding: 12px 24px; }
+    .footer { padding: 28px 24px 24px; }
 }
 @media (max-width: 1024px) {
     .product-grid {
@@ -1196,40 +1476,26 @@ button {
         padding: 40px 36px;
         min-height: 400px;
     }
-    .carousel-slide h2 {
-        font-size: 32px;
-    }
-    .carousel-slide p {
-        font-size: 16px;
-    }
+    .carousel-slide h2 { font-size: 32px; }
+    .carousel-slide p { font-size: 16px; }
     .carousel-slide .btn-detail {
         padding: 12px 28px;
         font-size: 15px;
     }
 }
 @media (max-width: 768px) {
-    .topbar .nav-func {
-        display: none;
-    }
+    .topbar .nav-func { display: none; }
     .topbar {
         padding: 0 16px;
         height: 60px;
     }
-    .topbar .left {
-        gap: 16px;
-    }
-    .topbar .logo img {
-        height: 32px;
-    }
-    .main {
-        padding: 0;
-    }
+    .topbar .left { gap: 16px; }
+    .topbar .logo img { height: 32px; }
+    .main { padding: 0; }
     .section-block {
         padding: 18px 16px 20px;
     }
-    .section-header h3 {
-        font-size: 20px;
-    }
+    .section-header h3 { font-size: 20px; }
     .carousel-slide {
         padding: 28px 20px;
         min-height: 280px;
@@ -1262,39 +1528,16 @@ button {
         grid-template-columns: 1fr 1fr;
         gap: 12px;
     }
-    .product-card .info {
-        padding: 12px 14px 14px;
-    }
+    .product-card .info { padding: 12px 14px 14px; }
     .product-card .info .actions a {
         font-size: 12px;
         padding: 5px 10px;
     }
-    .contact-section {
-        padding: 16px 16px 20px;
-    }
-    .footer {
-        padding: 24px 16px 20px;
-    }
+    .contact-section { padding: 16px 16px 20px; }
+    .footer { padding: 24px 16px 20px; }
     .footer .footer-links {
         gap: 16px;
         font-size: 13px;
-    }
-    .float-nav {
-        bottom: 16px;
-        right: 12px;
-    }
-    .float-nav .main-btn {
-        width: 48px;
-        height: 48px;
-        font-size: 11px;
-    }
-    .float-nav .main-btn .icon {
-        font-size: 18px;
-    }
-    .float-nav .nav-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 16px;
     }
     .settings-bar.open {
         padding: 10px 16px;
@@ -1332,4 +1575,56 @@ button {
         font-size: 15px;
         min-width: unset;
     }
+.big-capsule-group {
+    position: fixed;
+    right: 24px;          /* ← 改回右边 */
+    bottom: 24px;         /* ← 贴底更近 */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 850;
+    opacity: 0.55;
+    transition: opacity 0.4s ease;
+}
+
+.big-capsule-group:hover {
+    opacity: 1;
+}
+    .big-capsule {
+        width: 38px;
+        padding: 4px;
+    }
+    .big-capsule-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+    .big-capsule.expanded {
+        width: 110px;
+        padding: 4px 12px 4px 4px;
+    }
+    .big-capsule-label { font-size: 12px; }
+    .capsule-divider { width: 22px; }
+}
+@media (max-width: 480px) {
+    .big-capsule-group {
+        right: 12px;
+        bottom: 100px;
+        gap: 6px;
+    }
+    .big-capsule {
+        width: 34px;
+        padding: 3px;
+    }
+    .big-capsule-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    .big-capsule.expanded {
+        width: 100px;
+        padding: 3px 10px 3px 3px;
+    }
+    .big-capsule-label { font-size: 11px; }
+    .capsule-divider { width: 18px; }
 }

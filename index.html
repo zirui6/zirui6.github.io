@@ -12,6 +12,37 @@
 </head>
 <body>
     
+<!-- 滚动触发动画 -->
+<script>
+(function() {
+    // 为各区块添加 reveal 类
+    var sections = document.querySelectorAll('.section-block, .carousel-wrap, .footer');
+    sections.forEach(function(sec, i) {
+        sec.classList.add('reveal');
+        sec.classList.add('reveal-delay-' + (i % 4 + 1));
+    });
+
+    // 为产品卡片添加 reveal
+    var cards = document.querySelectorAll('.product-card, .log-item, .article-item');
+    cards.forEach(function(card, i) {
+        card.classList.add('reveal');
+        card.style.transitionDelay = (i * 0.05) + 's';
+    });
+
+    // Intersection Observer
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(function(el) {
+        observer.observe(el);
+    });
+})();
+</script>
     <!-- ====== 加载动画（页面最顶部） ====== -->
 <div id="loadingOverlay" style="
     position: fixed;
@@ -144,18 +175,18 @@
             </div>
             <div class="contact-right">
                 <div class="qr-wrap">微信<br />扫码联系</div>
-                <div class="qr-label">官方微信服务号</div>
+                <div class="qr-label">微信号：wxid_3i8mpn0wiped22（最近没空。。）</div>
             </div>
             <div class="version-section">
                 <div>
-                    <div class="version-badge">v1.5.0</div>
+                    <div class="version-badge">v1.5.7</div>
                     <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">Build 2026.07</div>
                 </div>
                 <ul class="changelog">
+                    <li>预告1.6上线登录逻辑</li>
+                    <li>优化动态效果（kimi服务支持）</li>
                     <li>后端推送逻辑更新</li>
                     <li>胶囊式侧边入口</li>
-                    <li>AI + 网盘 + 联系 + 上下翻页</li>
-                    <li>数据分离至 data.js</li>
                 </ul>
             </div>
         </section>
@@ -224,10 +255,10 @@
     <div class="contact-popup" id="contactPopup">
         <button class="popup-close" id="popupClose">✕</button>
         <div class="popup-title">联系方式</div>
-        <div class="popup-item"><span class="icon">📧</span> contact@brandhub.com</div>
-        <div class="popup-item"><span class="icon">📞</span> +86 400-888-9999</div>
-        <div class="popup-item"><span class="icon">💬</span> 微信：BrandHub_Service</div>
-        <div class="popup-item"><span class="icon">🐦</span> @BrandHub_Official</div>
+        <div class="popup-item"><span class="icon">📧</span> ruijmsgdcn@outlook.com</div>
+        <div class="popup-item"><span class="icon">📧</span> zirui120501@outlook.com </div>
+        <div class="popup-item"><span class="icon">💬</span> 微信：wxid_3i8mpn0wiped22</div>
+        <div class="popup-item"><span class="icon">🐦</span> github主页可留言，有事找微信谢谢</div>
     </div>
 
     <!-- ====== 通知弹出框 ====== -->
