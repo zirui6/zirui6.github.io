@@ -147,7 +147,10 @@
             margin-bottom: 5px;
         }
 
-        .form-group input {
+        /* 统一输入框样式 - 所有输入框一致 */
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"] {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid var(--border-color);
@@ -159,14 +162,47 @@
             outline: none;
         }
 
-        .form-group input:focus {
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="password"]:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 4px var(--accent-light);
             background: var(--bg-card);
         }
 
-        .form-group input::placeholder {
+        .form-group input[type="text"]::placeholder,
+        .form-group input[type="email"]::placeholder,
+        .form-group input[type="password"]::placeholder {
             color: var(--text-muted);
+        }
+
+        /* 密码输入框容器 */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            padding: 12px 48px 12px 16px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            color: var(--text-muted);
+            transition: color var(--transition);
+            line-height: 1;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-primary);
         }
 
         .form-group .hint {
@@ -402,7 +438,10 @@
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">密码</label>
-                    <input type="password" id="loginPassword" placeholder="请输入密码" required minlength="6" />
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" placeholder="请输入密码" required minlength="6" />
+                        <button type="button" class="toggle-password" id="toggleLoginPassword" aria-label="显示/隐藏密码">👁️</button>
+                    </div>
                     <div class="hint">密码长度不少于6位</div>
                 </div>
                 <div class="form-group">
@@ -429,12 +468,18 @@
                 </div>
                 <div class="form-group">
                     <label for="regPassword">密码</label>
-                    <input type="password" id="regPassword" placeholder="请设置密码（至少6位）" required minlength="6" />
+                    <div class="password-wrapper">
+                        <input type="password" id="regPassword" placeholder="请设置密码（至少6位）" required minlength="6" />
+                        <button type="button" class="toggle-password" id="toggleRegPassword" aria-label="显示/隐藏密码">👁️</button>
+                    </div>
                     <div class="hint">密码长度不少于6位</div>
                 </div>
                 <div class="form-group">
                     <label for="regConfirm">确认密码</label>
-                    <input type="password" id="regConfirm" placeholder="请再次输入密码" required minlength="6" />
+                    <div class="password-wrapper">
+                        <input type="password" id="regConfirm" placeholder="请再次输入密码" required minlength="6" />
+                        <button type="button" class="toggle-password" id="toggleRegConfirm" aria-label="显示/隐藏密码">👁️</button>
+                    </div>
                 </div>
                 <button type="submit" class="btn-primary" id="regBtn">注 册</button>
             </form>
@@ -449,590 +494,435 @@
 
     </div>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    </script>
-
     <script>
+        // ============================================================
+        // 1. 配置 - Cloudflare Worker API
+        // ============================================================
+        var API_BASE = 'https://webcloud.ziruicloud.de5.net';
 
-// ============================================================
-// 1. Cookie 工具函数
-// ============================================================
-var CookieHelper = {
-    set: function(name, value, days) {
-        var expires = '';
-        if (days) {
-            var date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = '; expires=' + date.toUTCString();
-        }
-        document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
-    },
-    get: function(name) {
-        var nameEQ = name + '=';
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) === 0) {
-                return decodeURIComponent(c.substring(nameEQ.length, c.length));
-            }
-        }
-        return null;
-    },
-    delete: function(name) {
-        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    },
-    getAll: function() {
-        var cookies = {};
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-            var eqPos = c.indexOf('=');
-            if (eqPos > 0) {
-                var name = c.substring(0, eqPos);
-                var value = decodeURIComponent(c.substring(eqPos + 1));
-                cookies[name] = value;
-            }
-        }
-        return cookies;
-    }
-};
-
-// ============================================================
-// 2. Supabase 配置
-// ============================================================
-var SUPABASE_URL = 'https://worker.ziruicloud.de5.net';
-var SUPABASE_ANON_KEY = 'sb_publishable_doQMNbNC84-qL5wrjNjejA_o4LV_B0X';
-
-// 创建 Supabase 客户端
-var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-        storage: {
-            getItem: function(key) { return CookieHelper.get(key); },
-            setItem: function(key, value) { CookieHelper.set(key, value, 7); },
-            removeItem: function(key) { CookieHelper.delete(key); }
-        }
-    }
-});
-
-console.log('🔌 Supabase 客户端已创建，代理地址:', SUPABASE_URL);
-
-// ============================================================
-// 3. DOM 引用
-// ============================================================
-var msgEl = document.getElementById('msg');
-var loginForm = document.getElementById('loginForm');
-var registerForm = document.getElementById('registerForm');
-var loginBtn = document.getElementById('loginBtn');
-var regBtn = document.getElementById('regBtn');
-var rememberMe = document.getElementById('rememberMe');
-var statusDot = document.getElementById('statusDot');
-var statusText = document.getElementById('statusText');
-
-// ============================================================
-// 4. 详细错误消息系统
-// ============================================================
-function showDetailedError(title, detail, suggestion) {
-    msgEl.innerHTML = 
-        '<span class="error-code">❌ ' + title + '</span>' +
-        '<span class="error-detail">' + detail + '</span>' +
-        (suggestion ? '<span class="error-suggestion">💡 ' + suggestion + '</span>' : '');
-    msgEl.className = 'msg error';
-}
-
-function showSuccess(text) {
-    msgEl.textContent = text;
-    msgEl.className = 'msg success';
-}
-
-function showInfo(text) {
-    msgEl.textContent = text;
-    msgEl.className = 'msg info';
-}
-
-function hideMsg() {
-    msgEl.className = 'msg';
-    msgEl.innerHTML = '';
-}
-
-// ============================================================
-// 5. 连接状态检测
-// ============================================================
-async function checkConnection() {
-    statusDot.className = 'dot checking';
-    statusText.textContent = '正在检测服务器连接...';
-    
-    try {
-        // 尝试访问 Worker 的健康检查端点
-        var response = await fetch(SUPABASE_URL + '/health', {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            signal: AbortSignal.timeout(5000)
-        });
-        
-        if (response.ok) {
-            var data = await response.json();
-            statusDot.className = 'dot online';
-            statusText.textContent = '✅ 服务器连接正常 (Worker 代理运行中)';
-            console.log('✅ 健康检查通过:', data);
-            return true;
-        } else {
-            statusDot.className = 'dot offline';
-            statusText.textContent = '⚠️ 服务器响应异常 (HTTP ' + response.status + ')';
-            return false;
-        }
-    } catch (error) {
-        statusDot.className = 'dot offline';
-        
-        if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-            statusText.textContent = '⏱️ 连接超时 - 服务器无响应';
-        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            statusText.textContent = '🌐 网络错误 - 无法连接到服务器';
-        } else {
-            statusText.textContent = '❌ 连接失败: ' + error.message;
-        }
-        
-        console.error('❌ 连接检测失败:', error);
-        return false;
-    }
-}
-
-// ============================================================
-// 6. 错误类型判断函数
-// ============================================================
-function classifyError(error, context) {
-    var message = error.message || String(error);
-    
-    // 网络/连接错误
-    if (message.includes('Failed to fetch') || message.includes('NetworkError') || 
-        message.includes('load failed') || message.includes('ERR_CONNECTION_REFUSED')) {
-        return {
-            title: '🌐 网络连接失败',
-            detail: '无法连接到认证服务器，请检查网络连接。',
-            suggestion: '请确认网络正常，且代理服务器 ' + SUPABASE_URL + ' 可访问。'
-        };
-    }
-    
-    // 超时错误
-    if (message.includes('timeout') || message.includes('Timeout')) {
-        return {
-            title: '⏱️ 请求超时',
-            detail: '服务器响应超时，可能网络延迟过高或服务器繁忙。',
-            suggestion: '请稍后重试，或检查代理服务器状态。'
-        };
-    }
-    
-    // 404 错误
-    if (message.includes('404') || message.includes('not found')) {
-        return {
-            title: '❓ 404 - 接口不存在',
-            detail: '代理服务器未正确转发请求到 Supabase。',
-            suggestion: '请检查 Worker 代理配置，确保路径转发正确。'
-        };
-    }
-    
-    // 500 错误
-    if (message.includes('500') || message.includes('Internal Server Error')) {
-        return {
-            title: '⚠️ 服务器内部错误 (500)',
-            detail: '代理服务器或 Supabase 后端出现异常。',
-            suggestion: '请检查 Worker 日志，或稍后重试。'
-        };
-    }
-    
-    // 403 错误
-    if (message.includes('403') || message.includes('Forbidden')) {
-        return {
-            title: '🔒 403 - 访问被拒绝',
-            detail: 'API 密钥无效或权限不足。',
-            suggestion: '请检查 SUPABASE_ANON_KEY 是否正确。'
-        };
-    }
-    
-    // 401 错误
-    if (message.includes('401') || message.includes('Unauthorized')) {
-        return {
-            title: '🔑 401 - 认证失败',
-            detail: '用户名或密码错误，或 token 已过期。',
-            suggestion: '请检查用户名和密码是否正确。'
-        };
-    }
-    
-    // 422 错误
-    if (message.includes('422') || message.includes('Unprocessable Entity')) {
-        return {
-            title: '📝 422 - 请求数据无效',
-            detail: '提交的数据格式不正确。',
-            suggestion: '请检查邮箱格式和密码长度是否符合要求。'
-        };
-    }
-    
-    // 用户已存在
-    if (message.includes('already registered') || message.includes('User already')) {
-        return {
-            title: '👤 用户已存在',
-            detail: '该邮箱已被注册。',
-            suggestion: '请直接登录，或使用其他邮箱注册。'
-        };
-    }
-    
-    // 密码太弱
-    if (message.includes('password') && message.includes('weak')) {
-        return {
-            title: '🔐 密码强度不足',
-            detail: '密码过于简单。',
-            suggestion: '请使用至少6位包含字母和数字的密码。'
-        };
-    }
-    
-    // 默认
-    return {
-        title: '⚠️ 请求失败',
-        detail: message,
-        suggestion: '请稍后重试，如持续失败请联系管理员。'
-    };
-}
-
-// ============================================================
-// 7. 选项卡切换
-// ============================================================
-document.querySelectorAll('.tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-        this.classList.add('active');
-        var target = this.dataset.tab;
-        document.querySelectorAll('.form-panel').forEach(function(p) { p.classList.remove('active'); });
-        document.getElementById('panel' + target.charAt(0).toUpperCase() + target.slice(1)).classList.add('active');
-        hideMsg();
-    });
-});
-
-// ============================================================
-// 8. 工具函数
-// ============================================================
-function isEmail(value) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function saveUserSession(userData, remember) {
-    var sessionData = {
-        isLoggedIn: 'true',
-        userId: userData.id || '',
-        email: userData.email || '',
-        displayName: userData.email ? userData.email.split('@')[0] : '',
-        role: userData.role || 'user',
-        loginTime: new Date().toISOString()
-    };
-
-    sessionStorage.setItem('isLoggedIn', 'true');
-    sessionStorage.setItem('userId', sessionData.userId);
-    sessionStorage.setItem('userEmail', sessionData.email);
-    sessionStorage.setItem('displayName', sessionData.displayName);
-    sessionStorage.setItem('role', sessionData.role);
-
-    if (remember) {
-        CookieHelper.set('userSession', JSON.stringify(sessionData), 7);
-        CookieHelper.set('isLoggedIn', 'true', 7);
-        CookieHelper.set('userId', sessionData.userId, 7);
-        CookieHelper.set('userEmail', sessionData.email, 7);
-        CookieHelper.set('displayName', sessionData.displayName, 7);
-        CookieHelper.set('role', sessionData.role, 7);
-    } else {
-        CookieHelper.set('userSession', JSON.stringify(sessionData), null);
-        CookieHelper.set('isLoggedIn', 'true', null);
-        CookieHelper.set('userId', sessionData.userId, null);
-        CookieHelper.set('userEmail', sessionData.email, null);
-        CookieHelper.set('displayName', sessionData.displayName, null);
-        CookieHelper.set('role', sessionData.role, null);
-    }
-}
-
-function clearUserSession() {
-    sessionStorage.clear();
-    CookieHelper.delete('userSession');
-    CookieHelper.delete('isLoggedIn');
-    CookieHelper.delete('userId');
-    CookieHelper.delete('userEmail');
-    CookieHelper.delete('displayName');
-    CookieHelper.delete('role');
-    CookieHelper.delete('sb-auth-token');
-}
-
-// ============================================================
-// 9. 登录处理
-// ============================================================
-loginForm.addEventListener('submit', async function(event) {
-    event.preventDefault();
-    hideMsg();
-
-    var account = document.getElementById('loginAccount').value.trim();
-    var password = document.getElementById('loginPassword').value.trim();
-    var remember = rememberMe.checked;
-
-    if (!account || !password) {
-        showDetailedError('📝 信息不完整', '请填写完整的登录信息', '请确保用户名和密码都已填写');
-        return;
-    }
-
-    loginBtn.disabled = true;
-    loginBtn.textContent = '登录中...';
-
-    try {
-        var email = account;
-
-        if (!isEmail(account)) {
-            try {
-                var { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('email')
-                    .eq('username', account)
-                    .maybeSingle();
-
-                if (profileError) {
-                    console.warn('查询 profiles 失败:', profileError);
+        // ============================================================
+        // 2. Cookie 工具函数
+        // ============================================================
+        var CookieHelper = {
+            set: function(name, value, days) {
+                var expires = '';
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = '; expires=' + date.toUTCString();
                 }
+                document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
+            },
+            get: function(name) {
+                var nameEQ = name + '=';
+                var ca = document.cookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) === 0) {
+                        return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                    }
+                }
+                return null;
+            },
+            delete: function(name) {
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            },
+            getAll: function() {
+                var cookies = {};
+                var ca = document.cookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    var eqPos = c.indexOf('=');
+                    if (eqPos > 0) {
+                        var name = c.substring(0, eqPos);
+                        var value = decodeURIComponent(c.substring(eqPos + 1));
+                        cookies[name] = value;
+                    }
+                }
+                return cookies;
+            }
+        };
 
-                if (profile && profile.email) {
-                    email = profile.email;
+        // ============================================================
+        // 3. DOM 引用
+        // ============================================================
+        var msgEl = document.getElementById('msg');
+        var loginForm = document.getElementById('loginForm');
+        var registerForm = document.getElementById('registerForm');
+        var loginBtn = document.getElementById('loginBtn');
+        var regBtn = document.getElementById('regBtn');
+        var rememberMe = document.getElementById('rememberMe');
+        var statusDot = document.getElementById('statusDot');
+        var statusText = document.getElementById('statusText');
+
+        // 密码切换按钮
+        var toggleLoginPassword = document.getElementById('toggleLoginPassword');
+        var toggleRegPassword = document.getElementById('toggleRegPassword');
+        var toggleRegConfirm = document.getElementById('toggleRegConfirm');
+
+        var loginPassword = document.getElementById('loginPassword');
+        var regPassword = document.getElementById('regPassword');
+        var regConfirm = document.getElementById('regConfirm');
+
+        // ============================================================
+        // 4. 密码显示/隐藏切换
+        // ============================================================
+        function togglePasswordVisibility(input, button) {
+            if (!input || !button) return;
+
+            button.addEventListener('click', function() {
+                var isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                button.textContent = isPassword ? '🙈' : '👁️';
+                button.setAttribute('aria-label', isPassword ? '隐藏密码' : '显示密码');
+            });
+        }
+
+        // 初始化密码切换
+        togglePasswordVisibility(loginPassword, toggleLoginPassword);
+        togglePasswordVisibility(regPassword, toggleRegPassword);
+        togglePasswordVisibility(regConfirm, toggleRegConfirm);
+
+        // ============================================================
+        // 5. 消息系统
+        // ============================================================
+        function showError(title, detail, suggestion) {
+            msgEl.innerHTML =
+                '<span class="error-code">❌ ' + title + '</span>' +
+                '<span class="error-detail">' + detail + '</span>' +
+                (suggestion ? '<span class="error-suggestion">💡 ' + suggestion + '</span>' : '');
+            msgEl.className = 'msg error';
+        }
+
+        function showSuccess(text) {
+            msgEl.textContent = text;
+            msgEl.className = 'msg success';
+        }
+
+        function showInfo(text) {
+            msgEl.textContent = text;
+            msgEl.className = 'msg info';
+        }
+
+        function hideMsg() {
+            msgEl.className = 'msg';
+            msgEl.innerHTML = '';
+        }
+
+        // ============================================================
+        // 6. 连接状态检测
+        // ============================================================
+        async function checkConnection() {
+            statusDot.className = 'dot checking';
+            statusText.textContent = '正在检测服务器连接...';
+
+            try {
+                var response = await fetch(API_BASE + '/health', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: AbortSignal.timeout(5000)
+                });
+
+                if (response.ok) {
+                    var data = await response.json();
+                    statusDot.className = 'dot online';
+                    statusText.textContent = '✅ 服务器连接正常 (Cloudflare Workers)';
+                    console.log('✅ 健康检查通过:', data);
+                    return true;
                 } else {
-                    email = account + '@zirui.com';
+                    statusDot.className = 'dot offline';
+                    statusText.textContent = '⚠️ 服务器响应异常 (HTTP ' + response.status + ')';
+                    return false;
                 }
-            } catch (err) {
-                console.warn('查询用户出错:', err);
-                email = account + '@zirui.com';
+            } catch (error) {
+                statusDot.className = 'dot offline';
+
+                if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+                    statusText.textContent = '⏱️ 连接超时 - 服务器无响应';
+                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    statusText.textContent = '🌐 网络错误 - 无法连接到服务器';
+                } else {
+                    statusText.textContent = '❌ 连接失败: ' + error.message;
+                }
+
+                console.error('❌ 连接检测失败:', error);
+                return false;
             }
         }
 
-        console.log('🔑 尝试登录，邮箱:', email);
-
-        var { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
+        // ============================================================
+        // 7. 选项卡切换
+        // ============================================================
+        document.querySelectorAll('.tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+                this.classList.add('active');
+                var target = this.dataset.tab;
+                document.querySelectorAll('.form-panel').forEach(function(p) { p.classList.remove('active'); });
+                document.getElementById('panel' + target.charAt(0).toUpperCase() + target.slice(1)).classList.add('active');
+                hideMsg();
+            });
         });
 
-        if (error) {
-            var classified = classifyError(error, 'login');
-            showDetailedError(classified.title, classified.detail, classified.suggestion);
-            loginBtn.disabled = false;
-            loginBtn.textContent = '登录';
-            return;
+        // ============================================================
+        // 8. 工具函数
+        // ============================================================
+        function isEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
         }
 
-        if (data && data.user) {
-            saveUserSession({
-                id: data.user.id,
-                email: data.user.email,
-                role: 'user'
-            }, remember);
+        function saveUserSession(token, user, remember) {
+            var sessionData = {
+                isLoggedIn: 'true',
+                userId: user.id || '',
+                username: user.username || '',
+                email: user.email || '',
+                displayName: user.username || (user.email ? user.email.split('@')[0] : ''),
+                role: 'user',
+                loginTime: new Date().toISOString()
+            };
 
-            if (data.session) {
-                CookieHelper.set('sb-auth-token', JSON.stringify({
-                    access_token: data.session.access_token,
-                    refresh_token: data.session.refresh_token,
-                    expires_at: data.session.expires_at
-                }), remember ? 7 : null);
-            }
-
-            showSuccess('✅ 登录成功！正在跳转...');
-
-            setTimeout(function() {
-                window.location.href = 'dashboard.html';
-            }, 1200);
-        } else {
-            showDetailedError('⚠️ 登录异常', '服务器返回了空数据', '请稍后重试或联系管理员');
-            loginBtn.disabled = false;
-            loginBtn.textContent = '登录';
-        }
-
-    } catch (err) {
-        console.error('登录错误:', err);
-        var classified = classifyError(err, 'login');
-        showDetailedError(classified.title, classified.detail, classified.suggestion);
-        loginBtn.disabled = false;
-        loginBtn.textContent = '登录';
-    }
-});
-
-// ============================================================
-// 10. 注册处理
-// ============================================================
-registerForm.addEventListener('submit', async function(event) {
-    event.preventDefault();
-    hideMsg();
-
-    var account = document.getElementById('regAccount').value.trim();
-    var email = document.getElementById('regEmail').value.trim();
-    var password = document.getElementById('regPassword').value.trim();
-    var confirm = document.getElementById('regConfirm').value.trim();
-
-    if (!account || !email || !password || !confirm) {
-        showDetailedError('📝 信息不完整', '请填写完整的注册信息', '所有字段均为必填');
-        return;
-    }
-
-    if (account.length < 2) {
-        showDetailedError('👤 用户名无效', '用户名至少需要2个字符', '建议使用3-16位字母或数字组合');
-        return;
-    }
-
-    if (!isEmail(email)) {
-        showDetailedError('📧 邮箱格式错误', '请输入有效的邮箱地址', '例如: user@example.com');
-        return;
-    }
-
-    if (password.length < 6) {
-        showDetailedError('🔐 密码太短', '密码长度不能少于6位', '建议使用8位以上包含字母和数字的密码');
-        return;
-    }
-
-    if (password !== confirm) {
-        showDetailedError('❌ 密码不匹配', '两次输入的密码不一致', '请重新输入相同的密码');
-        return;
-    }
-
-    regBtn.disabled = true;
-    regBtn.textContent = '注册中...';
-
-    try {
-        console.log('📝 注册新用户:', email);
-
-        var { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-        });
-
-        if (error) {
-            var classified = classifyError(error, 'register');
-            showDetailedError(classified.title, classified.detail, classified.suggestion);
-            regBtn.disabled = false;
-            regBtn.textContent = '注册';
-            return;
-        }
-
-        if (data.user) {
-            try {
-                var { error: profileError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: data.user.id,
-                        username: account,
-                        email: email,
-                        created_at: new Date().toISOString()
-                    });
-
-                if (profileError) {
-                    console.warn('保存用户名失败:', profileError);
-                }
-            } catch (e) {
-                console.warn('保存用户名出错:', e);
-            }
-
-            if (data.session) {
-                saveUserSession({
-                    id: data.user.id,
-                    email: data.user.email,
-                    role: 'user'
-                }, true);
-
-                CookieHelper.set('sb-auth-token', JSON.stringify({
-                    access_token: data.session.access_token,
-                    refresh_token: data.session.refresh_token,
-                    expires_at: data.session.expires_at
-                }), 7);
-
-                showSuccess('✅ 注册成功！正在跳转...');
-
-                setTimeout(function() {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
-            } else {
-                showInfo('📧 注册成功！请查收邮箱验证邮件');
-                setTimeout(function() {
-                    window.location.href = 'login.html';
-                }, 3000);
-            }
-        } else {
-            showDetailedError('⚠️ 注册异常', '服务器返回了空数据', '请稍后重试或联系管理员');
-            regBtn.disabled = false;
-            regBtn.textContent = '注册';
-        }
-
-    } catch (err) {
-        console.error('注册错误:', err);
-        var classified = classifyError(err, 'register');
-        showDetailedError(classified.title, classified.detail, classified.suggestion);
-        regBtn.disabled = false;
-        regBtn.textContent = '注册';
-    }
-});
-
-// ============================================================
-// 11. 检查已登录会话
-// ============================================================
-(function checkSession() {
-    var isLoggedIn = CookieHelper.get('isLoggedIn');
-    var userSession = CookieHelper.get('userSession');
-    
-    if (isLoggedIn === 'true' && userSession) {
-        try {
-            var sessionData = JSON.parse(userSession);
             sessionStorage.setItem('isLoggedIn', 'true');
-            sessionStorage.setItem('userId', sessionData.userId || '');
-            sessionStorage.setItem('userEmail', sessionData.email || '');
-            sessionStorage.setItem('displayName', sessionData.displayName || '');
-            sessionStorage.setItem('role', sessionData.role || 'user');
-            window.location.href = 'dashboard.html';
-            return;
-        } catch (e) {
-            console.warn('解析用户会话失败:', e);
-        }
-    }
-    
-    if (sessionStorage.getItem('isLoggedIn') === 'true') {
-        window.location.href = 'dashboard.html';
-        return;
-    }
-    
-    if (window.location.hash && window.location.hash.includes('access_token')) {
-        supabase.auth.getSession().then(function(result) {
-            if (result.data && result.data.session) {
-                var user = result.data.session.user;
-                saveUserSession({
-                    id: user.id,
-                    email: user.email,
-                    role: 'user'
-                }, true);
-                setTimeout(function() {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
+            sessionStorage.setItem('auth_token', token);
+            sessionStorage.setItem('user_data', JSON.stringify(user));
+            sessionStorage.setItem('userId', sessionData.userId);
+            sessionStorage.setItem('userEmail', sessionData.email);
+            sessionStorage.setItem('displayName', sessionData.displayName);
+            sessionStorage.setItem('role', sessionData.role);
+
+            if (remember) {
+                CookieHelper.set('auth_token', token, 7);
+                CookieHelper.set('user_data', JSON.stringify(user), 7);
+                CookieHelper.set('isLoggedIn', 'true', 7);
+                CookieHelper.set('userId', sessionData.userId, 7);
+                CookieHelper.set('userEmail', sessionData.email, 7);
+                CookieHelper.set('displayName', sessionData.displayName, 7);
+                CookieHelper.set('role', sessionData.role, 7);
+            } else {
+                CookieHelper.set('auth_token', token, null);
+                CookieHelper.set('user_data', JSON.stringify(user), null);
+                CookieHelper.set('isLoggedIn', 'true', null);
+                CookieHelper.set('userId', sessionData.userId, null);
+                CookieHelper.set('userEmail', sessionData.email, null);
+                CookieHelper.set('displayName', sessionData.displayName, null);
+                CookieHelper.set('role', sessionData.role, null);
             }
+        }
+
+        function clearUserSession() {
+            sessionStorage.clear();
+            CookieHelper.delete('auth_token');
+            CookieHelper.delete('user_data');
+            CookieHelper.delete('isLoggedIn');
+            CookieHelper.delete('userId');
+            CookieHelper.delete('userEmail');
+            CookieHelper.delete('displayName');
+            CookieHelper.delete('role');
+        }
+
+        function getToken() {
+            return sessionStorage.getItem('auth_token') || CookieHelper.get('auth_token');
+        }
+
+        // ============================================================
+        // 9. API 调用函数
+        // ============================================================
+        async function apiCall(endpoint, data) {
+            var response = await fetch(API_BASE + endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            var result = await response.json();
+            return { status: response.status, data: result };
+        }
+
+        // ============================================================
+        // 10. 登录处理 - 跳转到用户中心
+        // ============================================================
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            hideMsg();
+
+            var account = document.getElementById('loginAccount').value.trim();
+            var password = document.getElementById('loginPassword').value.trim();
+            var remember = rememberMe.checked;
+
+            if (!account || !password) {
+                showError('信息不完整', '请填写用户名/邮箱和密码');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = '登录中...';
+
+            try {
+                console.log('🔑 尝试登录，账号:', account);
+
+                var result = await apiCall('/api/login', {
+                    account: account,
+                    password: password
+                });
+
+                if (result.status === 200 && result.data.success) {
+                    // 保存会话
+                    saveUserSession(result.data.token, result.data.user, remember);
+
+                    showSuccess('✅ 登录成功！正在跳转到用户中心...');
+
+                    setTimeout(function() {
+                        window.location.href = 'user.html';
+                    }, 1200);
+                } else {
+                    showError('登录失败', result.data.error || '用户名或密码错误');
+                }
+            } catch (error) {
+                console.error('登录错误:', error);
+                showError('网络错误', error.message || '无法连接到服务器');
+            }
+
+            loginBtn.disabled = false;
+            loginBtn.textContent = '登录';
         });
-    }
-})();
 
-// ============================================================
-// 12. 深色模式
-// ============================================================
-(function syncTheme() {
-    var savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-})();
+        // ============================================================
+        // 11. 注册处理
+        // ============================================================
+        registerForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            hideMsg();
 
-// ============================================================
-// 13. 页面加载完成后检测连接
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // 延迟1秒检测，确保页面完全加载
-    setTimeout(checkConnection, 1000);
-});
+            var username = document.getElementById('regAccount').value.trim();
+            var email = document.getElementById('regEmail').value.trim();
+            var password = document.getElementById('regPassword').value.trim();
+            var confirm = document.getElementById('regConfirm').value.trim();
 
-console.log('✅ 登录页面已加载（详细错误信息已启用）');
-console.log('📡 代理地址:', SUPABASE_URL);
+            if (!username || !email || !password || !confirm) {
+                showError('信息不完整', '请填写所有字段');
+                return;
+            }
+
+            if (username.length < 2) {
+                showError('用户名无效', '用户名至少需要2个字符');
+                return;
+            }
+
+            if (!isEmail(email)) {
+                showError('邮箱格式错误', '请输入有效的邮箱地址');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('密码太短', '密码长度不能少于6位');
+                return;
+            }
+
+            if (password !== confirm) {
+                showError('密码不匹配', '两次输入的密码不一致');
+                return;
+            }
+
+            regBtn.disabled = true;
+            regBtn.textContent = '注册中...';
+
+            try {
+                console.log('📝 注册新用户:', email);
+
+                var result = await apiCall('/api/register', {
+                    username: username,
+                    email: email,
+                    password: password
+                });
+
+                if (result.status === 201 && result.data.success) {
+                    // 自动登录
+                    saveUserSession(result.data.token, result.data.user, true);
+
+                    showSuccess('✅ 注册成功！正在跳转到用户中心...');
+
+                    setTimeout(function() {
+                        window.location.href = 'user.html';
+                    }, 1500);
+                } else {
+                    showError('注册失败', result.data.error || '未知错误');
+                }
+            } catch (error) {
+                console.error('注册错误:', error);
+                showError('网络错误', error.message || '无法连接到服务器');
+            }
+
+            regBtn.disabled = false;
+            regBtn.textContent = '注册';
+        });
+
+        // ============================================================
+        // 12. 检查已登录会话
+        // ============================================================
+        (function checkSession() {
+            var token = getToken();
+
+            if (token) {
+                // 验证令牌是否有效
+                fetch(API_BASE + '/api/verify', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.valid) {
+                        // 恢复用户数据
+                        var userData = CookieHelper.get('user_data') || sessionStorage.getItem('user_data');
+                        if (userData) {
+                            try {
+                                var user = JSON.parse(userData);
+                                sessionStorage.setItem('isLoggedIn', 'true');
+                                sessionStorage.setItem('userId', user.id || '');
+                                sessionStorage.setItem('userEmail', user.email || '');
+                                sessionStorage.setItem('displayName', user.username || user.email.split('@')[0] || '');
+                                sessionStorage.setItem('role', 'user');
+                            } catch (e) {
+                                console.warn('恢复用户数据失败:', e);
+                            }
+                        }
+                        window.location.href = 'user.html';
+                    } else {
+                        clearUserSession();
+                    }
+                })
+                .catch(function() {
+                    clearUserSession();
+                });
+            }
+
+            // 检查 URL 中是否有认证参数（OAuth 回调兼容）
+            if (window.location.hash && window.location.hash.includes('access_token')) {
+                console.log('检测到 OAuth 回调，但当前使用 Cloudflare Workers 认证');
+            }
+        })();
+
+        // ============================================================
+        // 13. 深色模式
+        // ============================================================
+        (function syncTheme() {
+            var savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
+        // ============================================================
+        // 14. 页面加载完成后检测连接
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(checkConnection, 500);
+        });
+
+        console.log('🔌 API 地址:', API_BASE);
+        console.log('✅ 登录页面已加载 (Cloudflare Workers + D1)');
     </script>
 
 </body>
