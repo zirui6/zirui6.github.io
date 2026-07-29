@@ -413,30 +413,46 @@ function loadMore(type) {
 // 4. 初始化应用
 // ============================================================
 function initApp() {
-    // ⚠️ 关键：先更新 totalCount
+    // ============================================================
+    // 按时间排序（最新在前）
+    // ============================================================
+    
+    // 动态：按日期倒序（最新的在前）
+    logData.sort(function(a, b) {
+        var dateA = new Date(a['日期']);
+        var dateB = new Date(b['日期']);
+        return dateB - dateA;
+    });
+    
+    
+    // 文章：按日期倒序（最新的在前）
+    articleData.sort(function(a, b) {
+        var dateA = new Date(a['日期']);
+        var dateB = new Date(b['日期']);
+        return dateB - dateA;
+    });
+    
+
+    // ============================================================
+    // 后续代码不变
+    // ============================================================
     totalCount.logs = logData.length;
     totalCount.products = productData.length;
     totalCount.articles = articleData.length;
-
-    // 然后渲染
+    
     renderLogs(logData, 'logContainer', PAGE_SIZE.logs);
-    renderLogs(logData, 'logContainer');  // 去掉 initialCount 参数
     renderProducts(productData, 'productGrid', PAGE_SIZE.products);
     renderArticles(articleData, 'articleContainer', PAGE_SIZE.articles);
     renderCarousel(carouselData);
-
-    // 最后更新可见性
+    
     updateVisibility('logs', '#logContainer', '.log-item');
     updateVisibility('products', '#productGrid', '.product-card');
     updateVisibility('articles', '#articleContainer', '.article-item');
-
-    // 轮播控制
-    var track = document.getElementById('carouselTrack');
-    var dots = document.getElementById('carouselDots');
-    if (track && dots && carouselData.length > 0) {
+    
+    if (carouselData.length > 0) {
         initCarouselControls();
     }
-
+    
     console.log('✅ 页面渲染完成');
 }
 

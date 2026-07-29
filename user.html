@@ -19,6 +19,7 @@
             --text-muted: #6b7f96;
             --border-color: #dce3ed;
             --shadow-lg: 0 20px 64px rgba(11, 26, 46, 0.12);
+            --shadow-md: 0 4px 20px rgba(11, 26, 46, 0.08);
             --accent: #1a4b8c;
             --accent-light: rgba(26, 75, 140, 0.08);
             --radius-md: 14px;
@@ -35,6 +36,7 @@
             --text-muted: #6b7f96;
             --border-color: #1e3350;
             --shadow-lg: 0 20px 64px rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
             --accent: #4a8fd8;
             --accent-light: rgba(74, 143, 216, 0.12);
         }
@@ -54,7 +56,7 @@
             background: var(--bg-card);
             border-radius: var(--radius-lg);
             padding: 44px 40px 36px;
-            max-width: 500px;
+            max-width: 560px;
             width: 100%;
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--border-color);
@@ -63,31 +65,169 @@
 
         .user-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
         .user-header .logo-img {
             max-width: 120px;
             height: auto;
             display: block;
-            margin: 0 auto 12px;
+            margin: 0 auto 10px;
             border-radius: 16px;
         }
 
         .user-header h1 {
-            font-size: 22px;
+            font-size: 24px;
             color: var(--text-primary);
         }
 
         .user-header p {
             color: var(--text-muted);
             font-size: 14px;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
+        /* ===== 消息提示 ===== */
+        .msg {
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .msg.error {
+            display: block;
+            background: #fde8e8;
+            color: #c62828;
+            border: 1px solid #f5c6c6;
+        }
+
+        .msg.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .msg.info {
+            display: block;
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #bbdefb;
+        }
+
+        .msg.warning {
+            display: block;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
+        [data-theme="dark"] .msg.error {
+            background: #2d1a1a;
+            color: #ef9a9a;
+            border-color: #4a2a2a;
+        }
+
+        [data-theme="dark"] .msg.success {
+            background: #1a2d1a;
+            color: #81c784;
+            border-color: #2a4a2a;
+        }
+
+        [data-theme="dark"] .msg.info {
+            background: #1a2a3d;
+            color: #90caf9;
+            border-color: #2a4a6a;
+        }
+
+        [data-theme="dark"] .msg.warning {
+            background: #2d2a1a;
+            color: #ffd700;
+            border-color: #ffc107;
+        }
+
+        /* ===== 邮箱验证横幅 ===== */
+        #verifyBanner {
+            display: none;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        [data-theme="dark"] #verifyBanner {
+            background: #2d2a1a;
+            border-color: #ffc107;
+        }
+
+        #verifyBanner .banner-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        #verifyBanner .banner-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        #verifyBanner .banner-title {
+            font-weight: 600;
+            color: #856404;
+            font-size: 15px;
+        }
+
+        [data-theme="dark"] #verifyBanner .banner-title {
+            color: #ffd700;
+        }
+
+        #verifyBanner .banner-desc {
+            color: #856404;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        [data-theme="dark"] #verifyBanner .banner-desc {
+            color: #ffd700;
+        }
+
+        #verifyBanner .banner-btn {
+            margin-top: 8px;
+            padding: 4px 18px;
+            background: #ffc107;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #333;
+            transition: all var(--transition);
+        }
+
+        #verifyBanner .banner-btn:hover {
+            background: #e0a800;
+            transform: scale(1.02);
+        }
+
+        #verifyBanner .banner-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        [data-theme="dark"] #verifyBanner .banner-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        /* ===== 头像区域 ===== */
         .avatar-section {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         .avatar-wrapper {
@@ -136,20 +276,21 @@
         .avatar-hint {
             font-size: 12px;
             color: var(--text-muted);
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
+        /* ===== 信息卡片 ===== */
         .info-card {
             background: var(--bg-body);
             border-radius: var(--radius-md);
-            padding: 20px 24px;
-            margin-bottom: 20px;
+            padding: 16px 20px;
+            margin-bottom: 18px;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            padding: 8px 0;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -171,11 +312,148 @@
             word-break: break-all;
         }
 
+        /* ===== 编辑表单 ===== */
+        .edit-section {
+            margin-bottom: 18px;
+        }
+
+        .edit-section .edit-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .edit-section .edit-title .toggle-edit {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--accent);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 2px 10px;
+            border-radius: 4px;
+            transition: all var(--transition);
+        }
+
+        .edit-section .edit-title .toggle-edit:hover {
+            background: var(--accent-light);
+        }
+
+        .edit-form {
+            display: none;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 8px;
+        }
+
+        .edit-form.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-form .form-group {
+            margin-bottom: 12px;
+        }
+
+        .edit-form .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .edit-form .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            transition: all var(--transition);
+            outline: none;
+        }
+
+        .edit-form .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-light);
+            background: var(--bg-card);
+        }
+
+        .edit-form .form-group .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .edit-form .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .edit-form .form-actions .btn-save {
+            padding: 8px 28px;
+            background: linear-gradient(135deg, #1a4b8c, #2c6ba8);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .edit-form .form-actions .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(26, 75, 140, 0.3);
+        }
+
+        .edit-form .form-actions .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .edit-form .form-actions .btn-cancel {
+            padding: 8px 20px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .edit-form .form-actions .btn-cancel:hover {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+        }
+
+        /* ===== 操作按钮 ===== */
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 8px;
+            gap: 10px;
+            margin-top: 6px;
         }
 
         .btn {
@@ -226,54 +504,6 @@
             transform: none !important;
         }
 
-        .msg {
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            margin-bottom: 16px;
-            display: none;
-            line-height: 1.6;
-        }
-
-        .msg.error {
-            display: block;
-            background: #fde8e8;
-            color: #c62828;
-            border: 1px solid #f5c6c6;
-        }
-
-        .msg.success {
-            display: block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-        }
-
-        .msg.info {
-            display: block;
-            background: #e3f2fd;
-            color: #0d47a1;
-            border: 1px solid #bbdefb;
-        }
-
-        [data-theme="dark"] .msg.error {
-            background: #2d1a1a;
-            color: #ef9a9a;
-            border-color: #4a2a2a;
-        }
-
-        [data-theme="dark"] .msg.success {
-            background: #1a2d1a;
-            color: #81c784;
-            border-color: #2a4a2a;
-        }
-
-        [data-theme="dark"] .msg.info {
-            background: #1a2a3d;
-            color: #90caf9;
-            border-color: #2a4a6a;
-        }
-
         .footer-links {
             display: flex;
             justify-content: center;
@@ -312,20 +542,25 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 480px) {
             .user-container {
-                padding: 28px 20px 24px;
+                padding: 24px 16px 20px;
             }
             .info-row {
                 flex-direction: column;
-                gap: 4px;
+                gap: 2px;
             }
             .info-row .value {
                 text-align: left;
                 max-width: 100%;
+            }
+            .edit-form .form-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -338,11 +573,26 @@
         <div class="user-header">
             <img src="https://zirui6.github.io/logo1.png" alt="梓睿官网 Logo" class="logo-img" />
             <h1>👤 用户中心</h1>
-            <p>欢迎回来！这里是你的个人主页</p>
+            <p>管理你的账号信息</p>
         </div>
 
         <!-- 消息提示 -->
         <div class="msg" id="msg"></div>
+
+        <!-- 邮箱验证横幅 -->
+        <div id="verifyBanner">
+            <div class="banner-content">
+                <span class="banner-icon">📧</span>
+                <div>
+                    <div class="banner-title">请验证您的邮箱</div>
+                    <div class="banner-desc">
+                        我们已向 <strong id="verifyEmailDisplay"></strong> 发送了验证邮件。
+                        请点击邮件中的链接完成验证。
+                    </div>
+                    <button class="banner-btn" id="resendVerifyBtn">📨 重新发送</button>
+                </div>
+            </div>
+        </div>
 
         <!-- 加载状态 -->
         <div id="loadingState" class="loading">
@@ -350,18 +600,19 @@
             <p>加载用户信息...</p>
         </div>
 
-        <!-- 用户信息（默认隐藏） -->
+        <!-- 用户内容 -->
         <div id="userContent" style="display:none;">
 
             <!-- 头像 -->
             <div class="avatar-section">
                 <div class="avatar-wrapper">
                     <img id="userAvatar" src="https://zirui6.github.io/touxiang.jpg" alt="用户头像" />
-                    <button class="avatar-edit-btn" id="avatarEditBtn" disabled title="暂不可修改头像（预留功能）">
-                        ✏️
+                    <button class="avatar-edit-btn" id="avatarEditBtn">
+                        📷
                     </button>
                 </div>
-                <div class="avatar-hint">💡 头像功能开发中，暂不可修改</div>
+                <div class="avatar-hint" id="avatarHint">点击 📷 更换头像（支持 JPG/PNG，最大 5MB）</div>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none;" />
             </div>
 
             <!-- 用户信息 -->
@@ -388,10 +639,48 @@
                 </div>
             </div>
 
+            <!-- 编辑信息 -->
+            <div class="edit-section">
+                <div class="edit-title">
+                    ✏️ 编辑资料
+                    <button class="toggle-edit" id="toggleEditBtn">展开</button>
+                </div>
+                <div class="edit-form" id="editForm">
+                    <div class="form-group">
+                        <label for="editUsername">用户名</label>
+                        <input type="text" id="editUsername" placeholder="请输入新用户名" />
+                        <div class="hint">字母和数字组合，至少2个字符</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">邮箱</label>
+                        <input type="email" id="editEmail" placeholder="请输入新邮箱" />
+                        <div class="hint">修改邮箱需要验证码确认</div>
+                    </div>
+                    <div class="form-group" id="verifyCodeGroup" style="display:none;">
+                        <label for="editVerifyCode">验证码</label>
+                        <div style="display:flex;gap:8px;">
+                            <input type="text" id="editVerifyCode" placeholder="请输入6位验证码" style="flex:1;" maxlength="6" />
+                            <button id="sendVerifyCodeBtn" style="padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">发送验证码</button>
+                        </div>
+                        <div class="hint">验证码将发送到新邮箱，有效期10分钟</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPassword">新密码</label>
+                        <input type="password" id="editPassword" placeholder="留空则不修改" minlength="6" />
+                        <div class="hint">至少6位，留空则不修改</div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-save" id="saveEditBtn">💾 保存修改</button>
+                        <button class="btn-cancel" id="cancelEditBtn">取消</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 操作按钮 -->
             <div class="action-buttons">
                 <button class="btn btn-primary" id="refreshBtn">🔄 刷新用户信息</button>
                 <button class="btn btn-danger" id="logoutBtn">🚪 退出登录</button>
+                <button class="btn btn-danger" id="deleteAccountBtn" style="background:#8b0000;color:#fff;border:2px solid #8b0000;">🗑️ 注销账号</button>
                 <button class="btn btn-outline" id="backHomeBtn">🏠 返回首页</button>
             </div>
         </div>
@@ -410,6 +699,13 @@
         // 配置
         // ============================================================
         var API_BASE = 'https://webcloud.ziruicloud.de5.net';
+
+        // 白名单邮箱（无需验证）
+        var WHITELIST_EMAILS = ['test@test.com', 'admin@qq.com'];
+
+        function isWhitelisted(email) {
+            return WHITELIST_EMAILS.indexOf(email.toLowerCase()) !== -1;
+        }
 
         // ============================================================
         // Cookie 工具
@@ -458,6 +754,28 @@
         var logoutBtn = document.getElementById('logoutBtn');
         var backHomeBtn = document.getElementById('backHomeBtn');
         var avatarEditBtn = document.getElementById('avatarEditBtn');
+        var avatarInput = document.getElementById('avatarInput');
+        var avatarHint = document.getElementById('avatarHint');
+
+        // 编辑相关
+        var toggleEditBtn = document.getElementById('toggleEditBtn');
+        var editForm = document.getElementById('editForm');
+        var editUsername = document.getElementById('editUsername');
+        var editEmail = document.getElementById('editEmail');
+        var editPassword = document.getElementById('editPassword');
+        var editVerifyCode = document.getElementById('editVerifyCode');
+        var verifyCodeGroup = document.getElementById('verifyCodeGroup');
+        var sendVerifyCodeBtn = document.getElementById('sendVerifyCodeBtn');
+        var saveEditBtn = document.getElementById('saveEditBtn');
+        var cancelEditBtn = document.getElementById('cancelEditBtn');
+
+        // 验证横幅
+        var verifyBanner = document.getElementById('verifyBanner');
+        var verifyEmailDisplay = document.getElementById('verifyEmailDisplay');
+        var resendVerifyBtn = document.getElementById('resendVerifyBtn');
+
+        var currentUser = null;
+        var isEditing = false;
 
         // ============================================================
         // 消息系统
@@ -475,6 +793,11 @@
         function showInfo(text) {
             msgEl.textContent = 'ℹ️ ' + text;
             msgEl.className = 'msg info';
+        }
+
+        function showWarning(text) {
+            msgEl.textContent = '⚠️ ' + text;
+            msgEl.className = 'msg warning';
         }
 
         function hideMsg() {
@@ -499,6 +822,10 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        }
+
+        function isEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
         }
 
         // ============================================================
@@ -530,15 +857,27 @@
                 var data = await response.json();
 
                 if (data.valid && data.user) {
+                    currentUser = data.user;
+
                     userIdEl.textContent = data.user.id || '-';
                     userNameEl.textContent = data.user.username || '-';
                     userEmailEl.textContent = data.user.email || '-';
                     userCreatedAtEl.textContent = formatDate(data.user.created_at) || '-';
 
+                    // 头像
+                    if (data.user.avatar_url) {
+                        userAvatarEl.src = data.user.avatar_url;
+                    }
+
                     sessionStorage.setItem('user_data', JSON.stringify(data.user));
 
                     loadingState.style.display = 'none';
                     userContent.style.display = 'block';
+
+                    // 填充编辑表单
+                    editUsername.value = data.user.username || '';
+                    editEmail.value = data.user.email || '';
+
                     showSuccess('用户信息加载成功');
                 } else {
                     loadingState.style.display = 'none';
@@ -557,6 +896,7 @@
                 if (cachedUser) {
                     try {
                         var user = JSON.parse(cachedUser);
+                        currentUser = user;
                         userIdEl.textContent = user.id || '-';
                         userNameEl.textContent = user.username || '-';
                         userEmailEl.textContent = user.email || '-';
@@ -592,6 +932,413 @@
             }
         }
 
+// ============================================================
+// 注销账号
+// ============================================================
+deleteAccountBtn.addEventListener('click', async function() {
+    // 二次确认
+    if (!confirm('⚠️ 确定要注销账号吗？\n\n此操作将永久删除你的账号和所有数据，不可恢复！')) {
+        return;
+    }
+    
+    // 再次确认（输入用户名）
+    var username = currentUser?.username || '';
+    var confirmName = prompt('请输入你的用户名以确认注销：\n（输入 "' + username + '" 确认）');
+    if (confirmName !== username) {
+        showError('用户名不匹配', '注销已取消');
+        return;
+    }
+    
+    // 第三次确认
+    if (!confirm('⚠️ 最后一次确认：确定要永久删除账号 "' + username + '" 吗？')) {
+        return;
+    }
+    
+    this.disabled = true;
+    this.textContent = '⏳ 处理中...';
+    
+    var token = getToken();
+    if (!token) {
+        showError('未登录', '请重新登录');
+        this.disabled = false;
+        this.textContent = '🗑️ 注销账号';
+        return;
+    }
+    
+    try {
+        var response = await fetch(API_BASE + '/api/delete-account', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        var data = await response.json();
+        
+        if (response.ok && data.success) {
+            showSuccess('✅ 账号已成功注销');
+            // 清除所有会话
+            clearUserSession();
+            setTimeout(function() {
+                window.location.href = 'login.html';
+            }, 1500);
+        } else {
+            showError('注销失败', data.error || '请稍后重试');
+            this.disabled = false;
+            this.textContent = '🗑️ 注销账号';
+        }
+    } catch (error) {
+        console.error('注销错误:', error);
+        showError('网络错误', error.message || '无法连接到服务器');
+        this.disabled = false;
+        this.textContent = '🗑️ 注销账号';
+    }
+});
+
+        // ============================================================
+        // 邮箱验证横幅
+        // ============================================================
+        (function checkVerifyBanner() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var needVerify = urlParams.get('needVerify');
+            var email = urlParams.get('email');
+
+            if (needVerify === 'true' && email && !isWhitelisted(email)) {
+                verifyEmailDisplay.textContent = email;
+                verifyBanner.style.display = 'block';
+                showWarning('请验证您的邮箱以使用完整功能');
+            }
+        })();
+
+        // ============================================================
+        // 重新发送验证邮件
+        // ============================================================
+        resendVerifyBtn.addEventListener('click', async function() {
+            var email = verifyEmailDisplay.textContent;
+            if (!email) return;
+
+            this.textContent = '发送中...';
+            this.disabled = true;
+
+            try {
+                var response = await fetch(API_BASE + '/api/send-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, type: 'register' })
+                });
+
+                var data = await response.json();
+
+                if (data.success) {
+                    showSuccess('验证邮件已重新发送，请查收');
+                    this.textContent = '✅ 已发送';
+                    setTimeout(function() {
+                        resendVerifyBtn.textContent = '📨 重新发送';
+                        resendVerifyBtn.disabled = false;
+                    }, 3000);
+                } else {
+                    showError('发送失败', data.error || '请稍后重试');
+                    this.textContent = '📨 重新发送';
+                    this.disabled = false;
+                }
+            } catch (error) {
+                showError('网络错误', '请稍后重试');
+                this.textContent = '📨 重新发送';
+                this.disabled = false;
+            }
+        });
+
+// ============================================================
+// 头像上传（优化版）
+// ============================================================
+avatarEditBtn.addEventListener('click', function() {
+    // 检测是否是移动端
+    if ('ontouchstart' in window) {
+        avatarInput.click();
+    } else {
+        avatarInput.click();
+    }
+});
+
+avatarInput.addEventListener('change', async function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+
+    // 验证文件类型
+    var validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        showError('格式错误', '请上传 JPG、PNG、GIF 或 WebP 格式的图片');
+        return;
+    }
+
+    // 验证文件大小
+    if (file.size > 5 * 1024 * 1024) {
+        showError('文件太大', '图片大小不能超过 5MB');
+        return;
+    }
+
+    // 显示上传状态
+    avatarHint.textContent = '⏳ 上传中...';
+    avatarHint.style.color = 'var(--accent)';
+    avatarEditBtn.disabled = true;
+
+    var token = getToken();
+    if (!token) {
+        showError('未登录', '请先登录');
+        avatarEditBtn.disabled = false;
+        avatarHint.textContent = '💡 点击 📷 更换头像';
+        avatarHint.style.color = '';
+        return;
+    }
+
+    var formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+        var response = await fetch(API_BASE + '/api/upload-avatar', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+            body: formData
+        });
+
+        var result = await response.json();
+
+        if (response.ok && result.success) {
+            // 更新头像
+            userAvatarEl.src = result.avatar_url + '?t=' + new Date().getTime();
+            avatarHint.textContent = '✅ 头像更新成功！';
+            avatarHint.style.color = '#4caf50';
+            showSuccess('头像更新成功');
+
+            // 更新缓存
+            if (currentUser) {
+                currentUser.avatar_url = result.avatar_url;
+                sessionStorage.setItem('user_data', JSON.stringify(currentUser));
+                // 更新 Cookie
+                CookieHelper.set('user_data', JSON.stringify(currentUser), 7);
+            }
+        } else {
+            avatarHint.textContent = '❌ ' + (result.error || '上传失败');
+            avatarHint.style.color = '#dc3545';
+            showError('上传失败', result.error || '请稍后重试');
+        }
+    } catch (error) {
+        console.error('上传错误:', error);
+        avatarHint.textContent = '❌ 网络错误，请重试';
+        avatarHint.style.color = '#dc3545';
+        showError('网络错误', error.message || '无法连接到服务器');
+    }
+
+    avatarEditBtn.disabled = false;
+    avatarInput.value = '';
+
+    // 3秒后恢复提示
+    setTimeout(function() {
+        if (avatarHint.textContent.includes('✅') || avatarHint.textContent.includes('❌')) {
+            avatarHint.textContent = '💡 点击 📷 更换头像';
+            avatarHint.style.color = '';
+        }
+    }, 4000);
+});
+
+        // ============================================================
+        // 编辑资料 - 切换
+        // ============================================================
+        toggleEditBtn.addEventListener('click', function() {
+            isEditing = !isEditing;
+            editForm.classList.toggle('show');
+            this.textContent = isEditing ? '收起' : '展开';
+            if (isEditing) {
+                editUsername.value = currentUser?.username || '';
+                editEmail.value = currentUser?.email || '';
+                editPassword.value = '';
+                editVerifyCode.value = '';
+                verifyCodeGroup.style.display = 'none';
+            }
+            hideMsg();
+        });
+
+        cancelEditBtn.addEventListener('click', function() {
+            isEditing = false;
+            editForm.classList.remove('show');
+            toggleEditBtn.textContent = '展开';
+            hideMsg();
+        });
+
+        // ============================================================
+        // 发送验证码（修改邮箱时）
+        // ============================================================
+        sendVerifyCodeBtn.addEventListener('click', async function() {
+            var email = editEmail.value.trim();
+
+            if (!email) {
+                showError('邮箱为空', '请先填写新邮箱');
+                return;
+            }
+
+            if (!isEmail(email)) {
+                showError('邮箱格式错误', '请输入有效的邮箱地址');
+                return;
+            }
+
+            if (email === currentUser?.email) {
+                showError('邮箱未变更', '新邮箱与当前邮箱相同，无需验证');
+                return;
+            }
+
+            this.textContent = '发送中...';
+            this.disabled = true;
+
+            try {
+                var response = await fetch(API_BASE + '/api/send-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, type: 'update' })
+                });
+
+                var data = await response.json();
+
+                if (data.success) {
+                    showSuccess('验证码已发送到 ' + email);
+                    verifyCodeGroup.style.display = 'block';
+                    this.textContent = '✅ 已发送';
+                    setTimeout(function() {
+                        sendVerifyCodeBtn.textContent = '重新发送';
+                        sendVerifyCodeBtn.disabled = false;
+                    }, 3000);
+                } else if (response.status === 429) {
+                    showError('发送太频繁', data.detail || '请稍后再试');
+                    this.textContent = '重新发送';
+                    this.disabled = false;
+                } else {
+                    showError('发送失败', data.error || '请稍后重试');
+                    this.textContent = '重新发送';
+                    this.disabled = false;
+                }
+            } catch (error) {
+                showError('网络错误', '请稍后重试');
+                this.textContent = '重新发送';
+                this.disabled = false;
+            }
+        });
+
+        // 监听邮箱输入变化，显示验证码输入框
+        editEmail.addEventListener('input', function() {
+            var email = this.value.trim();
+            if (email && isEmail(email) && email !== currentUser?.email) {
+                verifyCodeGroup.style.display = 'block';
+            } else {
+                verifyCodeGroup.style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // 保存编辑
+        // ============================================================
+        saveEditBtn.addEventListener('click', async function() {
+            var username = editUsername.value.trim();
+            var email = editEmail.value.trim();
+            var password = editPassword.value.trim();
+            var code = editVerifyCode.value.trim();
+
+            // 检查是否有修改
+            if (!username && !email && !password) {
+                showError('无修改', '请至少修改一项内容');
+                return;
+            }
+
+            // 验证用户名
+            if (username && username.length < 2) {
+                showError('用户名无效', '用户名至少2个字符');
+                return;
+            }
+
+            // 验证邮箱
+            if (email && !isEmail(email)) {
+                showError('邮箱格式错误', '请输入有效的邮箱地址');
+                return;
+            }
+
+            // 如果修改了邮箱，需要验证码（白名单除外）
+            if (email && email !== currentUser?.email && !isWhitelisted(email)) {
+                if (!code) {
+                    showError('需要验证码', '修改邮箱需要输入验证码');
+                    return;
+                }
+                if (code.length !== 6) {
+                    showError('验证码无效', '请输入6位验证码');
+                    return;
+                }
+            }
+
+            // 验证密码
+            if (password && password.length < 6) {
+                showError('密码太短', '密码至少6位');
+                return;
+            }
+
+            this.disabled = true;
+            this.textContent = '保存中...';
+
+            var token = getToken();
+            if (!token) {
+                showError('未登录', '请重新登录');
+                this.disabled = false;
+                this.textContent = '💾 保存修改';
+                return;
+            }
+
+            var payload = {};
+            if (username) payload.username = username;
+            if (email) payload.email = email;
+            if (password) payload.password = password;
+            if (code) payload.code = code;
+
+            try {
+                var response = await fetch(API_BASE + '/api/update-user', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                var data = await response.json();
+
+                if (response.ok && data.success) {
+                    showSuccess('✅ 用户信息更新成功');
+                    // 更新缓存
+                    if (data.user) {
+                        currentUser = data.user;
+                        sessionStorage.setItem('user_data', JSON.stringify(data.user));
+                        // 刷新显示
+                        userNameEl.textContent = data.user.username || '-';
+                        userEmailEl.textContent = data.user.email || '-';
+                    }
+                    // 关闭编辑
+                    isEditing = false;
+                    editForm.classList.remove('show');
+                    toggleEditBtn.textContent = '展开';
+                    verifyCodeGroup.style.display = 'none';
+                    // 刷新
+                    setTimeout(function() {
+                        loadUserInfo();
+                    }, 500);
+                } else {
+                    showError('更新失败', data.error || '未知错误');
+                }
+            } catch (error) {
+                showError('网络错误', error.message || '无法连接到服务器');
+            }
+
+            this.disabled = false;
+            this.textContent = '💾 保存修改';
+        });
+
         // ============================================================
         // 页面初始化
         // ============================================================
@@ -617,10 +1364,6 @@
             backHomeBtn.addEventListener('click', function() {
                 window.location.href = 'index.html';
             });
-
-            avatarEditBtn.addEventListener('click', function() {
-                showInfo('头像功能开发中，敬请期待！');
-            });
         });
 
         // ============================================================
@@ -632,7 +1375,7 @@
         })();
 
         console.log('🔌 API 地址:', API_BASE);
-        console.log('✅ 用户中心已加载');
+        console.log('✅ 用户中心已加载 (v2.0)');
     </script>
 
 </body>

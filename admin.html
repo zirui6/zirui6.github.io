@@ -133,20 +133,6 @@
                 font-size: 20px;
             }
         }
-        .debug-info {
-            margin-top: 16px;
-            padding: 10px 14px;
-            background: #f6f8fa;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #57606a;
-            border: 1px dashed #d0d7de;
-            display: none;
-            word-break: break-all;
-        }
-        .debug-info.show {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -172,8 +158,6 @@
             <button type="submit" class="btn-login">登 录</button>
         </form>
 
-        <div class="debug-info" id="debugInfo"></div>
-
         <div class="footer">
             <strong>Deepseek</strong> 构建技术支持 | 
             <strong>©zirui 2026</strong> 版权所有
@@ -181,6 +165,9 @@
     </div>
 
     <script>
+        // ============================================================
+        // 用户数据（SHA-512 哈希）
+        // ============================================================
         const users = {
             "zirui": {
                 hash: "80830c8e07483d824ee184e85d5784e6e73f85e636d95fd53d1a39ce35e14c0edac049e3c3672a69fa3bbadc42e180f13b2440213eda4e76bbb02f0f0d5da4a0",
@@ -194,14 +181,29 @@
             }
         };
 
+        // ============================================================
+        // 检查是否已登录
+        // ============================================================
+        (function checkSession() {
+            if (sessionStorage.getItem("isLoggedIn") === "true") {
+                window.location.href = "dashboard.html";
+            }
+        })();
+
+        // ============================================================
+        // 登录处理
+        // ============================================================
+        let isLoggingIn = false;
+
         async function handleLogin(event) {
             event.preventDefault();
+            
+            if (isLoggingIn) return;
+            
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value.trim();
             const errorMsg = document.getElementById("errorMsg");
-            const debugInfo = document.getElementById("debugInfo");
             errorMsg.classList.remove("show");
-            debugInfo.classList.remove("show");
 
             if (!users[username]) {
                 errorMsg.textContent = "用户名不存在";
@@ -211,10 +213,11 @@
                 return false;
             }
 
+            isLoggingIn = true;
+
             const hashBuffer = await crypto.subtle.digest("SHA-512", new TextEncoder().encode(password));
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-
 
             if (hashHex === users[username].hash) {
                 sessionStorage.setItem("isLoggedIn", "true");
@@ -227,15 +230,13 @@
                 errorMsg.classList.add("show");
                 document.getElementById("password").value = "";
                 document.getElementById("password").focus();
+                isLoggingIn = false;
             }
             return false;
         }
 
-        (function checkSession() {
-            if (sessionStorage.getItem("isLoggedIn") === "true") {
-                window.location.href = "dashboard.html";
-            }
-        })();
+        window.handleLogin = handleLogin;
     </script>
+
 </body>
 </html>

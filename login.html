@@ -147,7 +147,6 @@
             margin-bottom: 5px;
         }
 
-        /* 统一输入框样式 - 所有输入框一致 */
         .form-group input[type="text"],
         .form-group input[type="email"],
         .form-group input[type="password"] {
@@ -176,7 +175,6 @@
             color: var(--text-muted);
         }
 
-        /* 密码输入框容器 */
         .password-wrapper {
             position: relative;
             display: flex;
@@ -256,6 +254,67 @@
             transform: none;
         }
 
+        /* ===== 第三方登录按钮 ===== */
+        .social-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0 16px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .social-divider::before,
+        .social-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-buttons .btn-social {
+            flex: 1;
+            padding: 11px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .social-buttons .btn-social:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+
+        .social-buttons .btn-social.github:hover {
+            border-color: #333;
+            background: #f0f0f0;
+        }
+
+        .social-buttons .btn-social.microsoft:hover {
+            border-color: #0078d4;
+            background: rgba(0, 120, 212, 0.08);
+        }
+
+        [data-theme="dark"] .social-buttons .btn-social.github:hover {
+            border-color: #888;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
         .msg {
             padding: 12px 16px;
             border-radius: var(--radius-md);
@@ -309,6 +368,13 @@
             border: 1px solid #bbdefb;
         }
 
+        .msg.warning {
+            display: block;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
         [data-theme="dark"] .msg.error {
             background: #2d1a1a;
             color: #ef9a9a;
@@ -325,6 +391,12 @@
             background: #1a2a3d;
             color: #90caf9;
             border-color: #2a4a6a;
+        }
+
+        [data-theme="dark"] .msg.warning {
+            background: #2d2a1a;
+            color: #ffd700;
+            border-color: #ffc107;
         }
 
         [data-theme="dark"] .msg .error-suggestion {
@@ -350,7 +422,6 @@
             color: var(--accent);
         }
 
-        /* 连接状态指示器 */
         .connection-status {
             display: flex;
             align-items: center;
@@ -400,6 +471,9 @@
                 flex-wrap: wrap;
                 gap: 8px;
                 justify-content: center;
+            }
+            .social-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -452,6 +526,17 @@
                 </div>
                 <button type="submit" class="btn-primary" id="loginBtn">登 录</button>
             </form>
+
+            <!-- 第三方登录 -->
+            <div class="social-divider">或使用以下方式</div>
+            <div class="social-buttons">
+                <button class="btn-social github" id="githubLoginBtn">
+                    <span style="font-size:20px;"></span> GitHub
+                </button>
+                <button class="btn-social microsoft" id="microsoftLoginBtn">
+                    <span style="font-size:20px;"> </span> Microsoft
+                </button>
+            </div>
         </div>
 
         <!-- 注册面板 -->
@@ -501,7 +586,16 @@
         var API_BASE = 'https://webcloud.ziruicloud.de5.net';
 
         // ============================================================
-        // 2. Cookie 工具函数
+        // 2. 白名单邮箱（无需验证）
+        // ============================================================
+        var WHITELIST_EMAILS = ['test@test.com', 'admin@qq.com'];
+
+        function isWhitelisted(email) {
+            return WHITELIST_EMAILS.indexOf(email.toLowerCase()) !== -1;
+        }
+
+        // ============================================================
+        // 3. Cookie 工具函数
         // ============================================================
         var CookieHelper = {
             set: function(name, value, days) {
@@ -527,26 +621,11 @@
             },
             delete: function(name) {
                 document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            },
-            getAll: function() {
-                var cookies = {};
-                var ca = document.cookie.split(';');
-                for (var i = 0; i < ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                    var eqPos = c.indexOf('=');
-                    if (eqPos > 0) {
-                        var name = c.substring(0, eqPos);
-                        var value = decodeURIComponent(c.substring(eqPos + 1));
-                        cookies[name] = value;
-                    }
-                }
-                return cookies;
             }
         };
 
         // ============================================================
-        // 3. DOM 引用
+        // 4. DOM 引用
         // ============================================================
         var msgEl = document.getElementById('msg');
         var loginForm = document.getElementById('loginForm');
@@ -557,7 +636,6 @@
         var statusDot = document.getElementById('statusDot');
         var statusText = document.getElementById('statusText');
 
-        // 密码切换按钮
         var toggleLoginPassword = document.getElementById('toggleLoginPassword');
         var toggleRegPassword = document.getElementById('toggleRegPassword');
         var toggleRegConfirm = document.getElementById('toggleRegConfirm');
@@ -566,12 +644,15 @@
         var regPassword = document.getElementById('regPassword');
         var regConfirm = document.getElementById('regConfirm');
 
+        // 第三方登录按钮
+        var githubLoginBtn = document.getElementById('githubLoginBtn');
+        var microsoftLoginBtn = document.getElementById('microsoftLoginBtn');
+
         // ============================================================
-        // 4. 密码显示/隐藏切换
+        // 5. 密码显示/隐藏切换
         // ============================================================
         function togglePasswordVisibility(input, button) {
             if (!input || !button) return;
-
             button.addEventListener('click', function() {
                 var isPassword = input.getAttribute('type') === 'password';
                 input.setAttribute('type', isPassword ? 'text' : 'password');
@@ -580,13 +661,12 @@
             });
         }
 
-        // 初始化密码切换
         togglePasswordVisibility(loginPassword, toggleLoginPassword);
         togglePasswordVisibility(regPassword, toggleRegPassword);
         togglePasswordVisibility(regConfirm, toggleRegConfirm);
 
         // ============================================================
-        // 5. 消息系统
+        // 6. 消息系统
         // ============================================================
         function showError(title, detail, suggestion) {
             msgEl.innerHTML =
@@ -606,13 +686,18 @@
             msgEl.className = 'msg info';
         }
 
+        function showWarning(text) {
+            msgEl.textContent = '⚠️ ' + text;
+            msgEl.className = 'msg warning';
+        }
+
         function hideMsg() {
             msgEl.className = 'msg';
             msgEl.innerHTML = '';
         }
 
         // ============================================================
-        // 6. 连接状态检测
+        // 7. 连接状态检测
         // ============================================================
         async function checkConnection() {
             statusDot.className = 'dot checking';
@@ -628,7 +713,7 @@
                 if (response.ok) {
                     var data = await response.json();
                     statusDot.className = 'dot online';
-                    statusText.textContent = '✅ 服务器连接正常 (Cloudflare Workers)';
+                    statusText.textContent = '✅ 服务器连接正常';
                     console.log('✅ 健康检查通过:', data);
                     return true;
                 } else {
@@ -638,7 +723,6 @@
                 }
             } catch (error) {
                 statusDot.className = 'dot offline';
-
                 if (error.name === 'TimeoutError' || error.name === 'AbortError') {
                     statusText.textContent = '⏱️ 连接超时 - 服务器无响应';
                 } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
@@ -646,14 +730,13 @@
                 } else {
                     statusText.textContent = '❌ 连接失败: ' + error.message;
                 }
-
                 console.error('❌ 连接检测失败:', error);
                 return false;
             }
         }
 
         // ============================================================
-        // 7. 选项卡切换
+        // 8. 选项卡切换
         // ============================================================
         document.querySelectorAll('.tab').forEach(function(tab) {
             tab.addEventListener('click', function() {
@@ -667,7 +750,7 @@
         });
 
         // ============================================================
-        // 8. 工具函数
+        // 9. 工具函数
         // ============================================================
         function isEmail(value) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -680,7 +763,7 @@
                 username: user.username || '',
                 email: user.email || '',
                 displayName: user.username || (user.email ? user.email.split('@')[0] : ''),
-                role: 'user',
+                role: user.role || 'user',
                 loginTime: new Date().toISOString()
             };
 
@@ -727,7 +810,7 @@
         }
 
         // ============================================================
-        // 9. API 调用函数
+        // 10. API 调用函数
         // ============================================================
         async function apiCall(endpoint, data) {
             var response = await fetch(API_BASE + endpoint, {
@@ -743,7 +826,7 @@
         }
 
         // ============================================================
-        // 10. 登录处理 - 跳转到用户中心
+        // 11. 登录处理 - 跳转到用户中心
         // ============================================================
         loginForm.addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -770,11 +853,8 @@
                 });
 
                 if (result.status === 200 && result.data.success) {
-                    // 保存会话
                     saveUserSession(result.data.token, result.data.user, remember);
-
-                    showSuccess('✅ 登录成功！正在跳转到用户中心...');
-
+                    showSuccess('✅ 登录成功！正在跳转...');
                     setTimeout(function() {
                         window.location.href = 'user.html';
                     }, 1200);
@@ -791,7 +871,7 @@
         });
 
         // ============================================================
-        // 11. 注册处理
+        // 12. 注册处理（带邮箱验证提示）
         // ============================================================
         registerForm.addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -840,14 +920,21 @@
                 });
 
                 if (result.status === 201 && result.data.success) {
-                    // 自动登录
+                    // 保存会话
                     saveUserSession(result.data.token, result.data.user, true);
+                    showSuccess('✅ 注册成功！正在跳转...');
 
-                    showSuccess('✅ 注册成功！正在跳转到用户中心...');
+                    // 判断是否需要验证邮箱
+                    var needVerify = !isWhitelisted(email);
 
                     setTimeout(function() {
-                        window.location.href = 'user.html';
-                    }, 1500);
+                        // 跳转到 user.html，带上验证提示参数
+                        var url = 'user.html?needVerify=' + (needVerify ? 'true' : 'false');
+                        if (needVerify) {
+                            url += '&email=' + encodeURIComponent(email);
+                        }
+                        window.location.href = url;
+                    }, 1200);
                 } else {
                     showError('注册失败', result.data.error || '未知错误');
                 }
@@ -861,22 +948,53 @@
         });
 
         // ============================================================
-        // 12. 检查已登录会话
+        // 13. 第三方登录 - GitHub
+        // ============================================================
+        githubLoginBtn.addEventListener('click', function() {
+            // 跳转到 GitHub OAuth 授权
+            var clientId = 'Ov23li4v8yT6FzXvjK0W'; // 替换为你的 GitHub OAuth App Client ID
+            var redirectUri = API_BASE + '/api/github-callback';
+            var authUrl = 'https://github.com/login/oauth/authorize?client_id=' + clientId +
+                '&redirect_uri=' + encodeURIComponent(redirectUri) +
+                '&scope=user:email';
+            
+            // 保存当前页面，登录后返回
+            sessionStorage.setItem('oauth_redirect', 'user.html');
+            window.location.href = authUrl;
+        });
+
+        // ============================================================
+        // 14. 第三方登录 - Microsoft
+        // ============================================================
+        microsoftLoginBtn.addEventListener('click', function() {
+            // 跳转到 Microsoft OAuth 授权
+            var clientId = 'your-microsoft-client-id'; // 替换为你的 Microsoft App Client ID
+            var redirectUri = API_BASE + '/api/microsoft-callback';
+            var authUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?' +
+                'client_id=' + clientId +
+                '&response_type=code' +
+                '&redirect_uri=' + encodeURIComponent(redirectUri) +
+                '&response_mode=query' +
+                '&scope=openid%20profile%20email' +
+                '&state=' + encodeURIComponent('user.html');
+            
+            sessionStorage.setItem('oauth_redirect', 'user.html');
+            window.location.href = authUrl;
+        });
+
+        // ============================================================
+        // 15. 检查已登录会话
         // ============================================================
         (function checkSession() {
             var token = getToken();
 
             if (token) {
-                // 验证令牌是否有效
                 fetch(API_BASE + '/api/verify', {
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    }
+                    headers: { 'Authorization': 'Bearer ' + token }
                 })
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
                     if (data.valid) {
-                        // 恢复用户数据
                         var userData = CookieHelper.get('user_data') || sessionStorage.getItem('user_data');
                         if (userData) {
                             try {
@@ -884,8 +1002,8 @@
                                 sessionStorage.setItem('isLoggedIn', 'true');
                                 sessionStorage.setItem('userId', user.id || '');
                                 sessionStorage.setItem('userEmail', user.email || '');
-                                sessionStorage.setItem('displayName', user.username || user.email.split('@')[0] || '');
-                                sessionStorage.setItem('role', 'user');
+                                sessionStorage.setItem('displayName', user.username || (user.email ? user.email.split('@')[0] : ''));
+                                sessionStorage.setItem('role', user.role || 'user');
                             } catch (e) {
                                 console.warn('恢复用户数据失败:', e);
                             }
@@ -900,14 +1018,13 @@
                 });
             }
 
-            // 检查 URL 中是否有认证参数（OAuth 回调兼容）
             if (window.location.hash && window.location.hash.includes('access_token')) {
-                console.log('检测到 OAuth 回调，但当前使用 Cloudflare Workers 认证');
+                console.log('检测到 OAuth 回调');
             }
         })();
 
         // ============================================================
-        // 13. 深色模式
+        // 16. 深色模式
         // ============================================================
         (function syncTheme() {
             var savedTheme = localStorage.getItem('theme') || 'light';
@@ -915,14 +1032,14 @@
         })();
 
         // ============================================================
-        // 14. 页面加载完成后检测连接
+        // 17. 页面加载完成后检测连接
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(checkConnection, 500);
         });
 
         console.log('🔌 API 地址:', API_BASE);
-        console.log('✅ 登录页面已加载 (Cloudflare Workers + D1)');
+        console.log('✅ 登录页面已加载 (支持邮箱验证提示 + 第三方登录)');
     </script>
 
 </body>

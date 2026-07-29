@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>仪表盘 · 梓睿</title>
+    <title>运维平台接口</title>
     <style>
         /* ============================================================
            重置 & 变量
@@ -31,7 +31,6 @@
             --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
         }
 
-        /* --- 深色模式 --- */
         [data-theme="dark"] {
             --bg-body: #0a1628;
             --bg-card: #111d33;
@@ -57,9 +56,6 @@
             transition: background var(--transition), color var(--transition);
         }
 
-        /* ============================================================
-           卡片容器
-           ============================================================ */
         .dashboard {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
@@ -71,9 +67,6 @@
             transition: background var(--transition), border-color var(--transition);
         }
 
-        /* ============================================================
-           头部
-           ============================================================ */
         .header {
             display: flex;
             align-items: center;
@@ -96,9 +89,6 @@
             padding-left: 52px;
         }
 
-        /* ============================================================
-           用户信息条
-           ============================================================ */
         .user-info {
             background: var(--bg-body);
             padding: 14px 20px;
@@ -137,9 +127,6 @@
             border: 1px solid var(--border-color);
         }
 
-        /* ============================================================
-           快速链接卡片区（整合所有后台链接）
-           ============================================================ */
         .quick-links {
             margin-bottom: 28px;
         }
@@ -193,9 +180,6 @@
             color: var(--accent);
         }
 
-        /* ============================================================
-           下载区域
-           ============================================================ */
         .download-section {
             margin-bottom: 28px;
         }
@@ -276,9 +260,6 @@
             box-shadow: 0 4px 16px rgba(26, 75, 140, 0.30);
         }
 
-        /* ============================================================
-           底部按钮
-           ============================================================ */
         .btn-logout {
             padding: 12px 36px;
             background: #cf222e;
@@ -311,9 +292,6 @@
             text-decoration: underline;
         }
 
-        /* ============================================================
-           响应式
-           ============================================================ */
         @media (max-width: 600px) {
             .dashboard {
                 padding: 28px 18px 24px;
@@ -358,28 +336,18 @@
             <span class="badge" id="roleBadge">—</span>
         </div>
 
-        <!-- ====== 快速链接（整合后的后台入口） ====== -->
+        <!-- ====== 快捷链接 ====== -->
         <div class="quick-links">
             <div class="section-title">🚀 快捷入口</div>
             <div class="quick-grid">
-                <a href="https://supabase.com/dashboard/project/fzvgkvvxxzegfwszeztes" target="_blank" class="quick-link">
-                    <span class="emoji">🛢️</span>
-                    <span class="label">Supabase 后台</span>
-                    <span class="arrow">→</span>
-                </a>
-                <a href="https://supabase.com/dashboard/project/fzvgkvvxxzegfwszeztes/settings/general" target="_blank" class="quick-link">
-                    <span class="emoji">⚙️</span>
-                    <span class="label">API 地址设置</span>
-                    <span class="arrow">→</span>
-                </a>
                 <a href="https://github.com" target="_blank" class="quick-link">
                     <span class="emoji">🐙</span>
                     <span class="label">GitHub 前台</span>
                     <span class="arrow">→</span>
                 </a>
-                <a href="https://supabase.com/" target="_blank" class="quick-link">
-                    <span class="emoji">📊</span>
-                    <span class="label">Supabase 官网</span>
+                <a href="https://dash.cloudflare.com/2bf64789caaad6f685cb4dadfc26a8a5/home" target="_blank" class="quick-link">
+                    <span class="emoji">☁️</span>
+                    <span class="label">Cloudflare</span>
                     <span class="arrow">→</span>
                 </a>
                 <a href="https://airtable.com/" target="_blank" class="quick-link">
@@ -387,11 +355,8 @@
                     <span class="label">数据更新</span>
                     <span class="arrow">→</span>
                 </a>
-            </div>
-        </div>
-                </a>
                 <a href="https://airtable.com/" target="_blank" class="quick-link">
-                    <span class="emoji">📊</span>
+                    <span class="emoji">🔄</span>
                     <span class="label">国内转换管理</span>
                     <span class="arrow">→</span>
                 </a>
@@ -423,7 +388,7 @@
 
             <div class="download-item">
                 <div class="info">
-                    <span class="num">#2</span>
+                    <span class="num">#3</span>
                     <span class="desc">
                         后台注册码备份
                         <span class="tag">密码同登录</span>
@@ -434,7 +399,7 @@
 
             <div class="download-item">
                 <div class="info">
-                    <span class="num">#3</span>
+                    <span class="num">#4</span>
                     <span class="desc">zirui6-2fa.zip</span>
                 </div>
                 <a href="https://raw.githubusercontent.com/zirui6/zirui6.github.io/refs/heads/main/zirui6-2fa.zip" target="_blank" class="btn-download primary">下载</a>
@@ -442,48 +407,73 @@
         </div>
 
         <!-- ====== 退出 & 返回 ====== -->
-        <button class="btn-logout" onclick="handleLogout()">退出登录</button>
+        <button class="btn-logout" onclick="handleLogout()">🚪 退出登录</button>
         <a href="admin.html" class="btn-back">← 返回登录页</a>
 
     </div>
 
     <script>
         // ============================================================
-        // 页面初始化
+        // 统一初始化 - 只保留这一套
         // ============================================================
-        (function init() {
+        (function initDashboard() {
+            // 防止重复初始化
+            if (window._dashboardReady) return;
+            window._dashboardReady = true;
+
             const isLoggedIn = sessionStorage.getItem("isLoggedIn");
             const username = sessionStorage.getItem("username");
             const displayName = sessionStorage.getItem("displayName");
             const role = sessionStorage.getItem("role");
 
+            // 未登录 → 跳转
             if (isLoggedIn !== "true" || !username) {
                 window.location.href = "admin.html";
                 return;
             }
 
-            document.getElementById("displayUser").textContent = displayName || username;
-
-            const badge = document.getElementById("roleBadge");
-            if (role === "superadmin") {
-                badge.textContent = "⚡ 超级管理员";
-            } else if (role === "demo") {
-                badge.textContent = "🎯 演示账户";
-            } else {
-                badge.textContent = "👤 用户";
+            // 显示用户信息
+            const nameEl = document.getElementById("displayUser");
+            if (nameEl) {
+                nameEl.textContent = displayName || username;
             }
+
+            const badgeEl = document.getElementById("roleBadge");
+            if (badgeEl) {
+                if (role === "superadmin") {
+                    badgeEl.textContent = "⚡ 超级管理员";
+                } else if (role === "demo") {
+                    badgeEl.textContent = "🎯 演示账户";
+                } else {
+                    badgeEl.textContent = "👤 用户";
+                }
+            }
+
+            console.log("✅ 仪表盘已加载，用户:", username);
         })();
 
         // ============================================================
-        // 退出登录
+        // 退出登录（清理所有存储）
         // ============================================================
         function handleLogout() {
-            sessionStorage.removeItem("isLoggedIn");
-            sessionStorage.removeItem("username");
-            sessionStorage.removeItem("role");
-            sessionStorage.removeItem("displayName");
-            window.location.href = "admin.html";
+            if (window._loggingOut) return;
+            window._loggingOut = true;
+
+            if (confirm("确定要退出登录吗？")) {
+                // 清理所有存储
+                sessionStorage.clear();
+                localStorage.removeItem("theme");
+                localStorage.removeItem("preferredLang");
+
+                // 跳转
+                window.location.href = "admin.html";
+            } else {
+                window._loggingOut = false;
+            }
         }
+
+        // 暴露给 HTML
+        window.handleLogout = handleLogout;
     </script>
 
 </body>
