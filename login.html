@@ -53,6 +53,20 @@
             transition: background var(--transition);
         }
 
+<!-- 在 login-header 之后，connection-status 之前添加 -->
+<!-- 返回链接 -->
+<div style="margin-bottom:12px;">
+    <a href="#" id="backLink" style="
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color var(--transition);
+    " onclick="goBack()">← 返回</a>
+</div>
+
         .login-container {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
@@ -585,6 +599,74 @@
         // ============================================================
         var API_BASE = 'https://webcloud.ziruicloud.de5.net';
 
+// ============================================================
+// 登录来源追踪
+// ============================================================
+
+function getSource() {
+    // 1. 从 URL 参数获取
+    var urlParams = new URLSearchParams(window.location.search);
+    var source = urlParams.get('source');
+    if (source) return source;
+
+    // 2. 从 sessionStorage 获取
+    source = sessionStorage.getItem('login_source');
+    if (source) return source;
+
+    // 3. 从 document.referrer 获取
+    var referrer = document.referrer;
+    if (referrer) {
+        if (referrer.includes('chat.ziruicloud.de5.net') || referrer.includes('chat.html')) return 'chat';
+        if (referrer.includes('cloud.html')) return 'cloud';
+        if (referrer.includes('user.html')) return 'user';
+        if (referrer.includes('index.html') || referrer.includes('zirui6.github.io/')) return 'home';
+        if (referrer.includes('4275.com')) return '4275';
+        if (referrer.includes('dashboard.html')) return 'dashboard';
+    }
+
+    return 'home';
+}
+
+function getReturnUrl(source) {
+    var base = 'https://zirui6.github.io';
+    var map = {
+        'chat': base + '/chat.html',
+        'cloud': base + '/cloud.html',
+        'user': base + '/user.html',
+        'home': base + '/index.html',
+        '4275': 'https://4275.com',
+        'dashboard': base + '/dashboard.html',
+        'login': base + '/login.html'
+    };
+    return map[source] || base + '/index.html';
+}
+
+function getReturnLabel(source) {
+    var map = {
+        'chat': '← 返回聊天',
+        'cloud': '← 返回云盘',
+        'user': '← 返回用户中心',
+        'home': '← 返回首页',
+        '4275': '← 返回 4275',
+        'dashboard': '← 返回仪表盘'
+    };
+    return map[source] || '← 返回';
+}
+
+function goBack() {
+    var source = getSource();
+    window.location.href = getReturnUrl(source);
+}
+
+function showBackLink() {
+    var source = getSource();
+    var link = document.getElementById('backLink');
+    if (!link) return;
+    link.textContent = getReturnLabel(source);
+    link.href = getReturnUrl(source);
+    sessionStorage.setItem('login_source', source);
+}
+
         // ============================================================
         // 2. 白名单邮箱（无需验证）
         // ============================================================
@@ -1035,7 +1117,21 @@
         // 17. 页面加载完成后检测连接
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(checkConnection, 500);
+// 登录成功
+if (result.status === 200 && result.data.success) {
+    saveUserSession(result.data.token, result.data.user, remember);
+    showSuccess('✅ 登录成功！正在跳转...');
+    
+    setTimeout(function() {
+        var source = getSource();
+        var returnUrl = getReturnUrl(source);
+        // 如果来源是登录页本身，跳转到用户中心
+        if (source === 'login' || source === 'home') {
+            returnUrl = 'user.html';
+        }
+        window.location.href = returnUrl;
+    }, 1200);
+}
         });
 
         console.log('🔌 API 地址:', API_BASE);
