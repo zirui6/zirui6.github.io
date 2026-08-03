@@ -551,9 +551,9 @@
 
         <!-- 快捷入口 -->
         <div class="quick-entry">
-            <a href="chat/index.html" class="entry-btn">
-                <span class="emoji">💬</span> 聊天
-            </a>
+<a href="https://zirui6.github.io/chat" class="entry-btn" id="chatEntryBtn">
+    <span class="emoji">💬</span> 聊天
+</a>
             <a href="cloud.html" class="entry-btn">
                 <span class="emoji">📁</span> 云盘
             </a>
@@ -1264,7 +1264,58 @@
             var savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
-
+// =============================================================
+// 聊天按钮跳转（带用户数据）
+// =============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // 监听聊天按钮点击
+    const chatBtn = document.getElementById('chatEntryBtn');
+    if (chatBtn) {
+        chatBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 获取当前用户数据
+            let user = null;
+            
+            // 1. 从 currentUser 获取（全局变量）
+            if (typeof currentUser !== 'undefined' && currentUser) {
+                user = currentUser;
+            }
+            
+            // 2. 从 localStorage 获取
+            if (!user) {
+                try {
+                    const data = localStorage.getItem('chat_user_data');
+                    if (data) user = JSON.parse(data);
+                } catch (e) {}
+            }
+            
+            // 3. 从 sessionStorage 获取
+            if (!user) {
+                try {
+                    const data = sessionStorage.getItem('user_data');
+                    if (data) user = JSON.parse(data);
+                } catch (e) {}
+            }
+            
+            if (user && user.id) {
+                // 编码用户数据到 URL
+                const userData = encodeURIComponent(JSON.stringify({
+                    id: user.id,
+                    username: user.username || user.display_name || '用户',
+                    email: user.email || '',
+                    display_name: user.display_name || user.username,
+                    avatar_url: user.avatar_url || 'https://zirui6.github.io/touxiang.jpg',
+                    token: getToken()
+                }));
+                window.location.href = 'chat/get.html?user=' + userData;
+            } else {
+                alert('请先登录');
+                window.location.href = 'login.html';
+            }
+        });
+    }
+});
         console.log('🔌 API 地址:', API_BASE);
         console.log('✅ 用户中心已加载');
     </script>
