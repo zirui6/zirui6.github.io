@@ -2,10 +2,13 @@
 // dashboard.js —— 仪表盘新功能（不改 script.js 原有逻辑）
 // ============================================================
 
+// ---- 两个 Airtable 令牌 ----
+var READ_ONLY_TOKEN = 'patdZcEB92LMLW3bQ.44a613d94083deff3df9f4fda69a7b7a6c851c56faf900b16c72c6ddff7021ea';
+var READ_ONLY_BASE = 'app9G6YeDcFq7g09r';
 
 var WRITE_TOKEN = 'patKZBmAE100rrp5H.f27826ccf260634239b6b93a9b9bcf8221f3fbbf74e5911115ccf805dccf6314';
 var WRITE_BASE = 'appFSBs4szXKsDTx9';
-var COUNTDOWN_TABLE = 'tblofWToFeaEEMnuU';
+var COUNTDOWN_TABLE = 'tbloFWToFeaEEMnuU';
 
 // ---- 全局 ----
 var countdownData = [];
@@ -137,7 +140,7 @@ function buildFilterOptions() {
         var v = this.value;
         var list = document.getElementById('countdownList');
         if (v === 'all') { renderCountdowns(); return; }
-        var filtered = countdownData.filter(function(d) { return d['日子'] === v && !isExpired(d); });
+        var filtered = countdownData.filter(function(d) { return String(d['日子']) === v && !isExpired(d); });
         if (filtered.length === 0) {
             list.innerHTML = '<div class="countdown-empty">该日期无倒数日</div>';
             return;
@@ -169,7 +172,7 @@ function loadCountdowns() {
         });
 }
 
-// 新建弹窗
+// 新建倒数日弹窗
 (function initCountdownModal() {
     var overlay = document.getElementById('countdownModalOverlay');
     var openBtn = document.getElementById('newCountdownBtn');
@@ -179,12 +182,12 @@ function loadCountdowns() {
     var msg = document.getElementById('cdMsg');
     if (!overlay || !openBtn) return;
 
-    function open() { overlay.classList.add('show'); msg.textContent = ''; }
-    function close() { overlay.classList.remove('show'); }
+    function openModal() { overlay.classList.add('show'); if (msg) msg.textContent = ''; }
+    function closeModal() { overlay.classList.remove('show'); }
 
-    openBtn.addEventListener('click', open);
-    if (closeBtn) closeBtn.addEventListener('click', close);
-    if (cancelBtn) cancelBtn.addEventListener('click', close);
+    openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
     saveBtn.addEventListener('click', function() {
         var name = document.getElementById('cdName').value.trim();
@@ -208,20 +211,24 @@ function loadCountdowns() {
             body: JSON.stringify({
                 fields: {
                     '名称': name,
-                    '日子': date,
+                    '日子': Number(date),
                     '创建人': creator,
-                    '有效期': expire || ''
+                    '有效期': expire ? Number(expire) : null
                 }
             })
         })
         .then(function(r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
+            if (!r.ok) {
+                return r.text().then(function(t) {
+                    throw new Error('HTTP ' + r.status + ' — ' + t);
+                });
+            }
             return r.json();
         })
         .then(function() {
             saveBtn.disabled = false;
             saveBtn.textContent = '保存';
-            close();
+            closeModal();
             document.getElementById('cdName').value = '';
             document.getElementById('cdDate').value = '';
             document.getElementById('cdCreator').value = '';
