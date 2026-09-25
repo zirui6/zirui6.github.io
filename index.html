@@ -6,9 +6,7 @@
     <title>梓睿官网</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* ============================================================
-           用户头像下拉菜单样式（补充到 style.css）
-           ============================================================ */
+        /* 用户头像下拉菜单（保留原样） */
         .user-avatar-wrapper {
             position: relative;
             cursor: pointer;
@@ -19,28 +17,17 @@
             transition: background var(--transition);
             gap: 8px;
         }
-        .user-avatar-wrapper:hover {
-            background: var(--bg-body);
-        }
+        .user-avatar-wrapper:hover { background: var(--bg-body); }
         .user-avatar-wrapper img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--border-color);
+            width: 36px; height: 36px; border-radius: 50%;
+            object-fit: cover; border: 2px solid var(--border-color);
             transition: border-color var(--transition);
         }
-        .user-avatar-wrapper:hover img {
-            border-color: var(--accent);
-        }
+        .user-avatar-wrapper:hover img { border-color: var(--accent); }
         .user-avatar-wrapper .username-text {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            max-width: 80px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-size: 14px; font-weight: 500; color: var(--text-primary);
+            max-width: 80px; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
         }
         .user-dropdown {
             display: none;
@@ -57,92 +44,53 @@
             backdrop-filter: blur(20px) saturate(1.6);
             animation: fadeInScale 0.25s ease;
         }
-        .user-dropdown.show {
-            display: block;
-        }
+        .user-dropdown.show { display: block; }
         .user-dropdown .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            color: var(--text-primary);
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 20px; color: var(--text-primary);
             text-decoration: none;
             transition: background var(--transition);
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-family: inherit;
+            font-size: 14px; cursor: pointer;
+            border: none; background: none; width: 100%;
+            text-align: left; font-family: inherit;
         }
-        .user-dropdown .dropdown-item:hover {
-            background: var(--bg-body);
-        }
-        .user-dropdown .dropdown-item.danger {
-            color: #dc3545;
-        }
-        .user-dropdown .dropdown-item.danger:hover {
-            background: rgba(220, 53, 69, 0.08);
-        }
+        .user-dropdown .dropdown-item:hover { background: var(--bg-body); }
+        .user-dropdown .dropdown-item.danger { color: #dc3545; }
+        .user-dropdown .dropdown-item.danger:hover { background: rgba(220, 53, 69, 0.08); }
         .user-dropdown .dropdown-divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 4px 12px;
+            height: 1px; background: var(--border-color); margin: 4px 12px;
         }
     </style>
-<script>
-    // 在页面加载前强制设置深色模式
-    document.documentElement.setAttribute('data-theme', 'dark');
-</script>
+    <script>
+        // 强制深色模式
+        document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes breathe { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+        @keyframes pulse-glow {
+            0%,100% { box-shadow: 0 0 0 0 rgba(74,143,216,0.3); }
+            50% { box-shadow: 0 0 30px 4px rgba(74,143,216,0.15); }
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
-    
-<!-- 滚动触发动画 -->
-<script>
-(function() {
-    var sections = document.querySelectorAll('.section-block, .carousel-wrap, .footer');
-    sections.forEach(function(sec, i) {
-        sec.classList.add('reveal');
-        sec.classList.add('reveal-delay-' + (i % 4 + 1));
-    });
-    var cards = document.querySelectorAll('.product-card, .log-item, .article-item');
-    cards.forEach(function(card, i) {
-        card.classList.add('reveal');
-        card.style.transitionDelay = (i * 0.05) + 's';
-    });
-    var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-    document.querySelectorAll('.reveal').forEach(function(el) {
-        observer.observe(el);
-    });
-})();
-</script>
 
-    <!-- ====== 加载动画 ====== -->
+<!-- ====== 加载动画 ====== -->
 <div id="loadingOverlay" style="
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(10, 22, 40, 0.95);
     backdrop-filter: blur(20px) saturate(1.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 99999;
-    transition: opacity 0.5s ease;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 99999; transition: opacity 0.5s ease;
 ">
     <div style="
-        width: 56px;
-        height: 56px;
+        width: 56px; height: 56px;
         border: 3px solid rgba(255,255,255,0.1);
         border-top-color: var(--accent, #4a8fd8);
         border-right-color: transparent;
@@ -152,98 +100,183 @@
         animation: spin 1s linear infinite, pulse-glow 2s ease-in-out infinite;
     "></div>
     <p style="
-        margin-top: 18px;
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 2px;
-        color: var(--text-primary, #e8edf4);
+        margin-top: 18px; font-size: 18px; font-weight: 700;
+        letter-spacing: 2px; color: var(--text-primary, #e8edf4);
         animation: breathe 2s ease-in-out infinite;
     ">梓睿官网</p>
-    <p style="
-        margin-top: 6px;
-        font-size: 14px;
-        color: #8b949e;
-    " id="loadingStatus">正在加载数据...</p>
+    <p style="margin-top: 6px; font-size: 14px; color: #8b949e;" id="loadingStatus">正在加载数据...</p>
 </div>
 
-<style>
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes breathe { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
-    @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 0 0 rgba(74,143,216,0.3); } 50% { box-shadow: 0 0 30px 4px rgba(74,143,216,0.15); } }
-    @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-</style>
-
-    <!-- ====== 顶栏 ====== -->
-    <header class="topbar" id="topbar">
-        <div class="left">
-            <div class="logo">
-                <img src="https://zirui6.github.io/logo1.png" alt="Logo" style="height:42px;width:auto;" />
-            </div>
-            <nav class="nav-func">
-                <a href="#logs">动态</a>
-                <a href="#products">产品</a>
-                <a href="#articles">文章</a>
-                <a href="#contact">联系</a>
-            </nav>
+<!-- ====== 顶栏 ====== -->
+<header class="topbar" id="topbar">
+    <div class="left">
+        <div class="logo">
+            <img src="https://zirui6.github.io/logo1.png" alt="Logo" style="height:42px;width:auto;" />
         </div>
-        <div class="right">
-            <button class="settings-btn" id="settingsToggle" title="设置">⚙</button>
-            <!-- 认证区域 -->
-            <div id="authArea" style="display:flex;align-items:center;gap:12px;">
-                <!-- 登录按钮（未登录显示） -->
-                <a href="login.html" id="loginBtnWrap">
-                    <button class="login-btn" id="loginBtn">登录</button>
-                </a>
-                <!-- 用户头像+名字（登录后显示） -->
-                <div class="user-avatar-wrapper" id="userAvatarWrapper">
-                    <img id="userAvatar" src="https://zirui6.github.io/touxiang.jpg" alt="用户头像" />
-                    <span class="username-text" id="userNameDisplay">用户</span>
-                    <span style="font-size:12px;color:var(--text-muted);">▼</span>
-                    <!-- 下拉工具栏 -->
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="user.html" class="dropdown-item">
-                            <span>👤</span> 用户主页
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item danger" id="logoutDropdownBtn">
-                            <span>🚪</span> 退出登录
-                        </button>
-                    </div>
+        <nav class="nav-func">
+            <a href="#logs">动态</a>
+            <a href="#products">产品</a>
+            <a href="#articles">文章</a>
+            <a href="#contact">联系</a>
+        </nav>
+    </div>
+    <div class="right">
+        <button class="settings-btn" id="settingsToggle" title="设置">⚙</button>
+        <div id="authArea" style="display:flex;align-items:center;gap:12px;">
+            <a href="login.html" id="loginBtnWrap">
+                <button class="login-btn" id="loginBtn">登录</button>
+            </a>
+            <div class="user-avatar-wrapper" id="userAvatarWrapper">
+                <img id="userAvatar" src="https://zirui6.github.io/touxiang.jpg" alt="用户头像" />
+                <span class="username-text" id="userNameDisplay">用户</span>
+                <span style="font-size:12px;color:var(--text-muted);">▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="user.html" class="dropdown-item"><span>👤</span> 用户主页</a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item danger" id="logoutDropdownBtn"><span>🚪</span> 退出登录</button>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
-    <!-- ====== 设置小条 ====== -->
-    <div class="settings-bar" id="settingsBar">
-        <div class="inner">
-            <span class="label">快捷设置</span>
-            <button class="pill" id="themeToggle">🌙 深色模式</button>
-            <span class="dot">•</span>
-            <button class="pill" id="notifToggle">通知</button>
-            <span class="dot">•</span>
-            <button class="pill" id="langToggle">语言 / 简体</button>
-            <span class="dot">•</span>
-            <button class="pill" id="statsToggle">数据统计</button>
-            <span class="dot">•</span>
-            <button class="pill" id="experimentToggle" style="border-color:var(--accent);color:var(--accent);">实验功能</button>
+<!-- ====== 设置弹窗 ====== -->
+<div class="settings-modal-overlay" id="settingsModalOverlay">
+    <div class="settings-modal">
+        <div class="settings-modal-header">
+            <span>⚙ 快捷设置</span>
+            <button class="settings-modal-close" id="settingsModalClose">✕</button>
+        </div>
+        <div class="settings-modal-body">
+            <button class="setting-item" id="themeToggle">🌙 深色模式</button>
+            <button class="setting-item" id="notifToggle">🔔 通知</button>
+            <button class="setting-item" id="langToggle">🌐 语言 / 简体</button>
+            <button class="setting-item" id="statsToggle">📊 数据统计</button>
+            <button class="setting-item" id="experimentToggle">🧪 实验功能</button>
+        </div>
+        <div class="settings-modal-footer">
+            <button class="settings-save-btn" id="settingsSaveBtn">保存</button>
         </div>
     </div>
+</div>
 
-    <!-- ====== 主容器 ====== -->
-    <main class="main">
+<!-- ====== 仪表盘页（上方固定一屏） ====== -->
+<section class="page-dashboard" id="pageDashboard">
+    <div class="dashboard-grid">
 
-        <!-- 五栏滑动展示 -->
-        <section class="carousel-wrap" id="carousel">
-            <div class="carousel-track" id="carouselTrack">
-                <!-- 由 JS 动态渲染 -->
+        <!-- 左上：日历 + 倒数日 -->
+        <div class="panel panel-calendar">
+            <div class="calendar-box">
+                <div class="calendar-header">
+                    <button id="calPrev">‹</button>
+                    <span id="calTitle">2026年9月</span>
+                    <button id="calNext">›</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <span>日</span><span>一</span><span>二</span><span>三</span>
+                    <span>四</span><span>五</span><span>六</span>
+                </div>
+                <div class="calendar-days" id="calendarDays"></div>
             </div>
-            <button class="carousel-btn prev" id="carouselPrev">‹</button>
-            <button class="carousel-btn next" id="carouselNext">›</button>
-            <div class="carousel-dots" id="carouselDots"></div>
-        </section>
 
-        <!-- 最新动态 -->
+            <div class="countdown-box">
+                <div class="countdown-header">
+                    <h3>⏳ 倒数日</h3>
+                    <button class="btn-new-countdown" id="newCountdownBtn">＋ 新建</button>
+                </div>
+                <div class="countdown-filter">
+                    <select id="countdownFilter">
+                        <option value="all">全部日期</option>
+                    </select>
+                </div>
+                <div class="countdown-list" id="countdownList">
+                    <div class="countdown-empty">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右上：轮播（原位置整体移到这里） -->
+        <div class="panel panel-carousel">
+            <section class="carousel-wrap" id="carousel">
+                <div class="carousel-track" id="carouselTrack"></div>
+                <button class="carousel-btn prev" id="carouselPrev">‹</button>
+                <button class="carousel-btn next" id="carouselNext">›</button>
+                <div class="carousel-dots" id="carouselDots"></div>
+            </section>
+        </div>
+
+        <!-- 下排：股市 -->
+        <div class="panel panel-stock">
+            <div class="panel-title">📈 股市</div>
+            <div class="stock-list" id="stockList">
+                <div class="panel-empty">待接入</div>
+            </div>
+        </div>
+
+        <!-- 下排：最新资讯 -->
+        <div class="panel panel-news">
+            <div class="panel-title">📰 最新资讯</div>
+            <div class="news-list" id="newsList">
+                <div class="panel-empty">待接入</div>
+            </div>
+        </div>
+
+        <!-- 下排：最新通知 -->
+        <div class="panel panel-notices">
+            <div class="panel-title">🔔 最新通知</div>
+            <div class="notices-list" id="noticesList">
+                <div class="panel-empty">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 下排右：搜索框 + 账户中心 -->
+        <div class="panel panel-search-account">
+            <div class="search-widget">
+                <select id="searchEngineSelect">
+                    <option value="https://www.baidu.com/s?wd=">百度</option>
+                    <option value="https://www.bing.com/search?q=">Bing</option>
+                    <option value="https://www.zhihu.com/search?type=content&q=">知乎</option>
+                    <option value="https://www.douyin.com/search/">抖音</option>
+                    <option value="https://www.xiaohongshu.com/search_result?keyword=">小红书</option>
+                    <option value="https://juejin.cn/search?query=">稀土掘金</option>
+                    <option value="__PAGE__">🔍 搜索本页内容</option>
+                </select>
+                <input type="text" id="searchQueryInput" placeholder="输入搜索内容..." />
+                <button id="searchGoBtn">搜索</button>
+            </div>
+
+            <div class="account-widget" id="accountWidget">
+                <div class="account-guest" id="accountGuest">
+                    <div class="guest-icon">👤</div>
+                    <div class="guest-text">你还没有登录，请先登录</div>
+                    <a href="login.html" class="guest-login-btn">去登录</a>
+                </div>
+                <div class="account-user" id="accountUser" style="display:none;">
+                    <div class="user-row">
+                        <img id="panelUserAvatar" src="https://zirui6.github.io/touxiang.jpg" />
+                        <div class="user-meta">
+                            <div class="user-name" id="panelUserName">用户</div>
+                            <div class="user-email" id="panelUserEmail">-</div>
+                        </div>
+                    </div>
+                    <div class="account-divider"></div>
+                    <div class="quick-links-panel" id="quickLinksPanel"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 向下箭头 -->
+    <div class="scroll-down-indicator" id="scrollDownIndicator">
+        <span class="arrow-float">↓</span>
+        <span class="arrow-text">向下滑动查看动态</span>
+    </div>
+</section>
+
+<!-- ====== 内容页（下方，原内容） ====== -->
+<section class="page-content" id="pageContent">
+    <main class="main">
         <section class="section-block" id="logs">
             <div class="section-header">
                 <h3><span data-key="logsTitle">最新动态</span></h3>
@@ -252,7 +285,6 @@
             <div id="logContainer"></div>
         </section>
 
-        <!-- 产品区 -->
         <section class="section-block" id="products">
             <div class="section-header">
                 <h3><span data-key="productsTitle">产品中心</span></h3>
@@ -261,7 +293,6 @@
             <div class="product-grid" id="productGrid"></div>
         </section>
 
-        <!-- 文章区 -->
         <section class="section-block" id="articles">
             <div class="section-header">
                 <h3><span data-key="articlesTitle">精选文章</span></h3>
@@ -270,54 +301,29 @@
             <div id="articleContainer"></div>
         </section>
 
-        <!-- 联系方式 -->
-<section class="section-block contact-section" id="contact">
-    <div class="contact-left">
-        <div class="contact-title">
-            <span data-key="contactTitle">📞 联系我们</span>
-        </div>
-        <div class="contact-item">
-            <span class="icon">📧</span> <strong>邮箱：</strong>ruijmsgdcn@outlook.com
-        </div>
-        <div class="contact-item">
-            <span class="icon">📍</span> <strong>地址：</strong>中国 · 广东 · 江门
-        </div>
-        <div class="contact-item">
-            <span class="icon">📞</span> <strong>电话：</strong> +86 
-        </div>
-        <div class="contact-item">
-            <span class="icon">🕐</span> <strong>工作时间：</strong> 待定
-        </div>
-        <div class="contact-item" style="border-bottom: none;">
-            <span class="icon">💬</span> <strong>微信：</strong> wxid_3i8mpn0wiped22
-        </div>
-    </div>
-    <div class="contact-right">
-        <div class="qr-wrap">
-            <!-- 微信二维码图片 -->
-            <img src="wechat-qr.jpg" alt="微信二维码" style="width:130px;height:130px;object-fit:contain;border-radius:8px;" />
-            <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">扫一扫加微信</div>
-        </div>
-        <div class="qr-label" style="font-size:13px;color:var(--text-muted);margin-top:8px;">
-            💡 微信号：wxid_3i8mpn0wiped22
-        </div>
-    </div>
-    <div class="version-section">
-        <div>
-            <div class="version-badge">v1.7.5</div>
-            <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">Build 2026.07</div>
-        </div>
-        <ul class="changelog">
-            <li>【重大更新】服务功能上新(1.7.6--7.29)</li>
-            <li>【重大更新】1.7.1 全新 Cloudflare 自托管认证系统</li>
-            <li>登录后显示用户头像和名称，点击弹出工具栏</li>
-            <li>优化动态效果</li>
-            <li>后端推送逻辑更新</li>
-        </ul>
-    </div>
-</section>
+        <section class="section-block contact-section" id="contact">
+            <div class="contact-left">
+                <div class="contact-title"><span data-key="contactTitle">📞 联系我们</span></div>
+                <div class="contact-item"><span class="icon">📧</span> <strong>邮箱：</strong>ruijmsgdcn@outlook.com</div>
+                <div class="contact-item"><span class="icon">📍</span> <strong>地址：</strong>中国 · 广东 · 江门</div>
+                <div class="contact-item"><span class="icon">📞</span> <strong>电话：</strong> +86 </div>
+                <div class="contact-item"><span class="icon">🕐</span> <strong>工作时间：</strong> 待定</div>
+                <div class="contact-item" style="border-bottom: none;"><span class="icon">💬</span> <strong>微信：</strong> wxid_3i8mpn0wiped22</div>
+            </div>
+            <div class="contact-right">
+                <div class="qr-wrap">
+                    <img src="wechat-qr.jpg" alt="微信二维码" style="width:130px;height:130px;object-fit:contain;border-radius:8px;" />
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">扫一扫加微信</div>
+                </div>
+                <div class="qr-label" style="font-size:13px;color:var(--text-muted);margin-top:8px;">💡 微信号：wxid_3i8mpn0wiped22</div>
+            </div>
+            <div class="version-section">
+                <div class="setup-more-box" id="setupMoreBox">
+                    系统版本 v1.8.3（预览版）                 点此查看更新日志
+                </div>
+            </div>
+        </section>
 
-        <!-- 底部 -->
         <footer class="footer">
             <div class="footer-links">
                 <a href="https://juejin.cn/user/1659613715893275">稀土掘金主页</a>
@@ -328,235 +334,255 @@
                 <a href="第三方服务协议.html">第三方服务使用须知</a>
                 <a href="admin.html">管理员登录</a>
             </div>
-            <div class="footer-copy">
-                <span>© 2026 Zirui. All Rights Reserved.</span>
-            </div>
+            <div class="footer-copy"><span>© 2026 Zirui. All Rights Reserved.</span></div>
         </footer>
-
     </main>
+</section>
 
-    <!-- ====== 大胶囊入口 ====== -->
-    <div class="big-capsule-group">
-        <div class="big-capsule" id="aiEntry">
-            <div class="big-capsule-icon">🤖</div>
-            <span class="big-capsule-label">AI 助手</span>
-            <div class="big-capsule-badge">NEW</div>
+<!-- ====== 大胶囊入口 ====== -->
+<div class="big-capsule-group">
+    <div class="big-capsule" id="aiEntry">
+        <div class="big-capsule-icon">🤖</div>
+        <span class="big-capsule-label">AI 助手</span>
+        <div class="big-capsule-badge">NEW</div>
+    </div>
+    <div class="big-capsule" id="driveEntry">
+        <div class="big-capsule-icon">📁</div>
+        <span class="big-capsule-label">我的网盘</span>
+        <div class="big-capsule-badge">云</div>
+    </div>
+    <div class="capsule-divider"></div>
+    <div class="big-capsule" id="goTopCapsule">
+        <div class="big-capsule-icon">↑</div>
+        <span class="big-capsule-label">回到顶部</span>
+    </div>
+    <div class="big-capsule" id="goBottomCapsule">
+        <div class="big-capsule-icon">↓</div>
+        <span class="big-capsule-label">跳转底部</span>
+    </div>
+    <div class="capsule-divider"></div>
+    <div class="big-capsule" id="contactCapsule">
+        <div class="big-capsule-icon">💬</div>
+        <span class="big-capsule-label">联系我</span>
+    </div>
+</div>
+
+<!-- ====== 联系弹窗 ====== -->
+<div class="contact-popup" id="contactPopup">
+    <button class="popup-close" id="popupClose">✕</button>
+    <div class="popup-title">联系方式</div>
+    <div class="popup-item"><span class="icon">📧</span> ruijmsgdcn@outlook.com</div>
+    <div class="popup-item"><span class="icon">📧</span> zirui120501@outlook.com</div>
+    <div class="popup-item"><span class="icon">💬</span> 微信：wxid_3i8mpn0wiped22</div>
+    <div class="popup-item"><span class="icon">🐦</span> github主页可留言</div>
+</div>
+
+<!-- ====== 通知弹窗（保留原结构，供 script.js 使用） ====== -->
+<div class="notif-popup" id="notifPopup">
+    <button class="popup-close" id="notifClose">✕</button>
+    <div class="popup-title">通知中心</div>
+    <div class="notif-item">你的有新的更新样式</div>
+    <div style="margin-top:10px;font-size:13px;color:var(--text-muted);text-align:center;">— 暂无更多通知 —</div>
+</div>
+
+<!-- ====== 倒数日新建弹窗 ====== -->
+<div class="modal-overlay" id="countdownModalOverlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span>＋ 新建倒数日</span>
+            <button class="modal-close" id="countdownModalClose">✕</button>
         </div>
-        <div class="big-capsule" id="driveEntry">
-            <div class="big-capsule-icon">📁</div>
-            <span class="big-capsule-label">我的网盘</span>
-            <div class="big-capsule-badge">云</div>
+        <div class="modal-body">
+            <label>名称</label>
+            <input type="text" id="cdName" placeholder="如：春节 / 项目上线" />
+            <label>日子（格式：20260925）</label>
+            <input type="text" id="cdDate" placeholder="20260925" maxlength="8" />
+            <label>创建人</label>
+            <input type="text" id="cdCreator" placeholder="你的名字" />
+            <label>有效期（格式：20261231，过期后自动隐藏）</label>
+            <input type="text" id="cdExpire" placeholder="20261231" maxlength="8" />
+            <div class="modal-msg" id="cdMsg"></div>
         </div>
-        <div class="capsule-divider"></div>
-        <div class="big-capsule" id="goTopCapsule">
-            <div class="big-capsule-icon">↑</div>
-            <span class="big-capsule-label">回到顶部</span>
-        </div>
-        <div class="big-capsule" id="goBottomCapsule">
-            <div class="big-capsule-icon">↓</div>
-            <span class="big-capsule-label">跳转底部</span>
-        </div>
-        <div class="capsule-divider"></div>
-        <div class="big-capsule" id="contactCapsule">
-            <div class="big-capsule-icon">💬</div>
-            <span class="big-capsule-label">联系我</span>
+        <div class="modal-footer">
+            <button class="modal-cancel" id="countdownCancel">取消</button>
+            <button class="modal-save" id="countdownSave">保存</button>
         </div>
     </div>
+</div>
 
-    <!-- ====== 弹出框 ====== -->
-    <div class="contact-popup" id="contactPopup">
-        <button class="popup-close" id="popupClose">✕</button>
-        <div class="popup-title">联系方式</div>
-        <div class="popup-item"><span class="icon">📧</span> ruijmsgdcn@outlook.com</div>
-        <div class="popup-item"><span class="icon">📧</span> zirui120501@outlook.com</div>
-        <div class="popup-item"><span class="icon">💬</span> 微信：wxid_3i8mpn0wiped22</div>
-        <div class="popup-item"><span class="icon">🐦</span> github主页可留言</div>
-    </div>
+<!-- ====== 原认证脚本（保留，勿动） ====== -->
+<script>
+    var API_BASE = 'https://webcloud.ziruicloud.de5.net';
 
-    <div class="notif-popup" id="notifPopup">
-        <button class="popup-close" id="notifClose">✕</button>
-        <div class="popup-title">通知中心</div>
-        <div class="notif-item">你的有新的更新样式</div>
-        <div style="margin-top:10px;font-size:13px;color:var(--text-muted);text-align:center;">— 暂无更多通知 —</div>
-    </div>
-
-
-    <!-- ====== 认证脚本（嵌入） ====== -->
-    <script>
-        // ============================================================
-        // 认证模块 - Cloudflare Workers + D1
-        // ============================================================
-        var API_BASE = 'https://webcloud.ziruicloud.de5.net';
-
-        var CookieHelper = {
-            set: function(name, value, days) {
-                var expires = '';
-                if (days) {
-                    var date = new Date();
-                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                    expires = '; expires=' + date.toUTCString();
-                }
-                document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
-            },
-            get: function(name) {
-                var nameEQ = name + '=';
-                var ca = document.cookie.split(';');
-                for (var i = 0; i < ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                    if (c.indexOf(nameEQ) === 0) {
-                        return decodeURIComponent(c.substring(nameEQ.length, c.length));
-                    }
-                }
-                return null;
-            },
-            delete: function(name) {
-                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    var CookieHelper = {
+        set: function(name, value, days) {
+            var expires = '';
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = '; expires=' + date.toUTCString();
             }
-        };
-
-        function getToken() {
-            return sessionStorage.getItem('auth_token') || CookieHelper.get('auth_token');
-        }
-
-        function getUserData() {
-            var data = sessionStorage.getItem('user_data') || CookieHelper.get('user_data');
-            if (data) {
-                try { return JSON.parse(data); } catch (e) { return null; }
+            document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
+        },
+        get: function(name) {
+            var nameEQ = name + '=';
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) {
+                    return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                }
             }
             return null;
+        },
+        delete: function(name) {
+            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         }
+    };
 
-        function clearUserSession() {
-            sessionStorage.clear();
-            CookieHelper.delete('auth_token');
-            CookieHelper.delete('user_data');
-            CookieHelper.delete('isLoggedIn');
-            CookieHelper.delete('userId');
-            CookieHelper.delete('userEmail');
-            CookieHelper.delete('displayName');
-            CookieHelper.delete('role');
+    function getToken() {
+        return sessionStorage.getItem('auth_token') || CookieHelper.get('auth_token');
+    }
+    function getUserData() {
+        var data = sessionStorage.getItem('user_data') || CookieHelper.get('user_data');
+        if (data) { try { return JSON.parse(data); } catch (e) { return null; } }
+        return null;
+    }
+    function clearUserSession() {
+        sessionStorage.clear();
+        CookieHelper.delete('auth_token');
+        CookieHelper.delete('user_data');
+        CookieHelper.delete('isLoggedIn');
+        CookieHelper.delete('userId');
+        CookieHelper.delete('userEmail');
+        CookieHelper.delete('displayName');
+        CookieHelper.delete('role');
+    }
+
+    function updateAuthUI() {
+        var token = getToken();
+        var user = getUserData();
+        var loginBtnWrap = document.getElementById('loginBtnWrap');
+        var avatarWrapper = document.getElementById('userAvatarWrapper');
+        var avatarImg = document.getElementById('userAvatar');
+        var nameDisplay = document.getElementById('userNameDisplay');
+
+        if (token && user) {
+            loginBtnWrap.style.display = 'none';
+            avatarWrapper.style.display = 'flex';
+            var avatarUrl = user.avatar_url || 'https://zirui6.github.io/touxiang.jpg';
+            avatarImg.src = avatarUrl;
+            var displayName = user.username || user.displayName || user.email || '用户';
+            nameDisplay.textContent = displayName;
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('displayName', displayName);
+            sessionStorage.setItem('userEmail', user.email || '');
+            sessionStorage.setItem('userId', user.id || '');
+        } else {
+            loginBtnWrap.style.display = 'inline';
+            avatarWrapper.style.display = 'none';
+            sessionStorage.removeItem('isLoggedIn');
         }
+    }
 
-        // ============================================================
-        // 更新 UI
-        // ============================================================
-        function updateAuthUI() {
-            var token = getToken();
-            var user = getUserData();
-            var loginBtnWrap = document.getElementById('loginBtnWrap');
-            var avatarWrapper = document.getElementById('userAvatarWrapper');
-            var avatarImg = document.getElementById('userAvatar');
-            var nameDisplay = document.getElementById('userNameDisplay');
-
-            if (token && user) {
-                loginBtnWrap.style.display = 'none';
-                avatarWrapper.style.display = 'flex';
-                var avatarUrl = user.avatar_url || 'https://zirui6.github.io/touxiang.jpg';
-                avatarImg.src = avatarUrl;
-                var displayName = user.username || user.displayName || user.email || '用户';
-                nameDisplay.textContent = displayName;
-                sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('displayName', displayName);
-                sessionStorage.setItem('userEmail', user.email || '');
-                sessionStorage.setItem('userId', user.id || '');
+    async function verifyAndUpdateUI() {
+        var token = getToken();
+        if (!token) { updateAuthUI(); return; }
+        try {
+            var response = await fetch(API_BASE + '/api/verify', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            var data = await response.json();
+            if (data.valid && data.user) {
+                var userData = {
+                    id: data.user.id,
+                    username: data.user.username,
+                    email: data.user.email,
+                    avatar_url: data.user.avatar_url || null
+                };
+                sessionStorage.setItem('user_data', JSON.stringify(userData));
+                CookieHelper.set('user_data', JSON.stringify(userData), 7);
+                updateAuthUI();
             } else {
-                loginBtnWrap.style.display = 'inline';
-                avatarWrapper.style.display = 'none';
-                sessionStorage.removeItem('isLoggedIn');
-            }
-        }
-
-        // ============================================================
-        // 验证令牌
-        // ============================================================
-        async function verifyAndUpdateUI() {
-            var token = getToken();
-            if (!token) { updateAuthUI(); return; }
-
-            try {
-                var response = await fetch(API_BASE + '/api/verify', {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                var data = await response.json();
-
-                if (data.valid && data.user) {
-                    var userData = {
-                        id: data.user.id,
-                        username: data.user.username,
-                        email: data.user.email,
-                        avatar_url: data.user.avatar_url || null
-                    };
-                    sessionStorage.setItem('user_data', JSON.stringify(userData));
-                    CookieHelper.set('user_data', JSON.stringify(userData), 7);
-                    updateAuthUI();
-                } else {
-                    clearUserSession();
-                    updateAuthUI();
-                }
-            } catch (error) {
-                var cachedUser = getUserData();
-                if (cachedUser) { updateAuthUI(); } 
-                else { clearUserSession(); updateAuthUI(); }
-            }
-        }
-
-        // ============================================================
-        // 退出登录
-        // ============================================================
-        function handleLogout() {
-            if (confirm('确定要退出登录吗？')) {
                 clearUserSession();
                 updateAuthUI();
-                window.location.reload();
             }
+        } catch (error) {
+            var cachedUser = getUserData();
+            if (cachedUser) { updateAuthUI(); }
+            else { clearUserSession(); updateAuthUI(); }
         }
+    }
 
-        // ============================================================
-        // 下拉菜单
-        // ============================================================
-        function initUserDropdown() {
-            var avatarWrapper = document.getElementById('userAvatarWrapper');
-            var dropdown = document.getElementById('userDropdown');
-            var logoutBtn = document.getElementById('logoutDropdownBtn');
+    function handleLogout() {
+        if (confirm('确定要退出登录吗？')) {
+            clearUserSession();
+            updateAuthUI();
+            window.location.reload();
+        }
+    }
 
-            if (!avatarWrapper || !dropdown) return;
+    function initUserDropdown() {
+        var avatarWrapper = document.getElementById('userAvatarWrapper');
+        var dropdown = document.getElementById('userDropdown');
+        var logoutBtn = document.getElementById('logoutDropdownBtn');
+        if (!avatarWrapper || !dropdown) return;
 
-            avatarWrapper.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdown.classList.toggle('show');
+        avatarWrapper.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        });
+        document.addEventListener('click', function(e) {
+            if (!avatarWrapper.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdown.classList.remove('show');
+                handleLogout();
             });
+        }
+    }
 
-            document.addEventListener('click', function(e) {
-                if (!avatarWrapper.contains(e.target)) {
-                    dropdown.classList.remove('show');
+    document.addEventListener('DOMContentLoaded', function() {
+        verifyAndUpdateUI().then(function() { initUserDropdown(); });
+    });
+</script>
+
+<!-- ====== 原主脚本（勿动） ====== -->
+<script src="script.js"></script>
+
+<!-- ====== 新增仪表盘脚本 ====== -->
+<script src="dashboard.js"></script>
+
+<!-- ====== 滚动触发动画（保留） ====== -->
+<script>
+    (function() {
+        var sections = document.querySelectorAll('.section-block, .footer');
+        sections.forEach(function(sec, i) {
+            sec.classList.add('reveal');
+            sec.classList.add('reveal-delay-' + (i % 4 + 1));
+        });
+        var cards = document.querySelectorAll('.product-card, .log-item, .article-item');
+        cards.forEach(function(card, i) {
+            card.classList.add('reveal');
+            card.style.transitionDelay = (i * 0.05) + 's';
+        });
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
                 }
             });
-
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    dropdown.classList.remove('show');
-                    handleLogout();
-                });
-            }
-        }
-
-        // ============================================================
-        // 页面加载初始化
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            verifyAndUpdateUI().then(function() {
-                initUserDropdown();
-            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.reveal').forEach(function(el) {
+            observer.observe(el);
         });
-
-        console.log('🔌 API 地址:', API_BASE);
-        console.log('✅ 首页认证已加载 (Cloudflare Workers)');
-    </script>
-
-    <!-- ====== 主脚本 ====== -->
-    <script src="script.js"></script>
+    })();
+</script>
 
 </body>
 </html>
