@@ -6,7 +6,7 @@
     <title>梓睿官网</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* 用户头像下拉菜单（保留原样） */
+        /* 用户头像下拉菜单 */
         .user-avatar-wrapper {
             position: relative;
             cursor: pointer;
@@ -62,7 +62,6 @@
         }
     </style>
     <script>
-        // 强制深色模式
         document.documentElement.setAttribute('data-theme', 'dark');
     </script>
     <style>
@@ -153,6 +152,7 @@
             <button class="setting-item" id="langToggle">🌐 语言 / 简体</button>
             <button class="setting-item" id="statsToggle">📊 数据统计</button>
             <button class="setting-item" id="experimentToggle">🧪 实验功能</button>
+            <button class="setting-item" id="newsClickModeToggle">🔗 资讯跳转：原链接</button>
         </div>
         <div class="settings-modal-footer">
             <button class="settings-save-btn" id="settingsSaveBtn">保存</button>
@@ -160,7 +160,7 @@
     </div>
 </div>
 
-<!-- ====== 仪表盘页（上方固定一屏） ====== -->
+<!-- ====== 仪表盘页 ====== -->
 <section class="page-dashboard" id="pageDashboard">
     <div class="dashboard-grid">
 
@@ -195,7 +195,7 @@
             </div>
         </div>
 
-        <!-- 右上：轮播（原位置整体移到这里） -->
+        <!-- 右上：轮播 -->
         <div class="panel panel-carousel">
             <section class="carousel-wrap" id="carousel">
                 <div class="carousel-track" id="carouselTrack"></div>
@@ -215,11 +215,21 @@
 
         <!-- 下排：最新资讯 -->
         <div class="panel panel-news">
-            <div class="panel-title">📰 最新资讯</div>
-            <div class="news-list" id="newsList">
-                <div class="panel-empty">待接入</div>
-            </div>
-        </div>
+    <div class="panel-title">
+        📰 最新资讯
+        <select class="news-platform-select" id="newsPlatformSelect">
+            <option value="weibo">微博</option>
+            <option value="zhihu">知乎</option>
+            <option value="bilibili">Bilibili</option>
+            <option value="douyin">抖音</option>
+            <option value="baidu">百度</option>
+            <option value="toutiao">头条</option>
+        </select>
+    </div>
+    <div class="news-list" id="newsList">
+        <div class="panel-empty">加载中...</div>
+    </div>
+</div>
 
         <!-- 下排：最新通知 -->
         <div class="panel panel-notices">
@@ -267,14 +277,34 @@
 
     </div>
 
-    <!-- 向下箭头 -->
+    <!-- 向下箭头（仅电脑版） -->
     <div class="scroll-down-indicator" id="scrollDownIndicator">
         <span class="arrow-float">↓</span>
         <span class="arrow-text">向下滑动查看动态</span>
     </div>
+
+    <!-- 手机版底部标签栏 -->
+    <nav class="mobile-tab-bar" id="mobileTabBar">
+        <button class="mobile-tab" data-target="stock" data-title="📈 股市">📈 股市</button>
+        <button class="mobile-tab" data-target="news" data-title="📰 资讯">📰 资讯</button>
+        <button class="mobile-tab" data-target="search" data-title="🔍 搜索">🔍 搜索</button>
+        <button class="mobile-tab" data-target="ai" data-title="🤖 AI 助手">🤖 AI</button>
+        <button class="mobile-tab" data-target="drive" data-title="📁 我的网盘">📁 网盘</button>
+    </nav>
+
+    <!-- 手机版模拟弹窗 -->
+    <div class="mobile-modal-overlay" id="mobileModalOverlay">
+        <div class="mobile-modal">
+            <div class="mobile-modal-header">
+                <span id="mobileModalTitle">标题</span>
+                <button class="mobile-modal-close" id="mobileModalClose">✕</button>
+            </div>
+            <div class="mobile-modal-body" id="mobileModalBody"></div>
+        </div>
+    </div>
 </section>
 
-<!-- ====== 内容页（下方，原内容） ====== -->
+<!-- ====== 内容页（下方） ====== -->
 <section class="page-content" id="pageContent">
     <main class="main">
         <section class="section-block" id="logs">
@@ -319,7 +349,7 @@
             </div>
             <div class="version-section">
                 <div class="setup-more-box" id="setupMoreBox">
-                    系统版本 v1.8.3（预览版）                 点此查看更新日志
+                    系统版本 v1.8.6（正式版）                 点此查看更新日志
                 </div>
             </div>
         </section>
@@ -340,17 +370,7 @@
 </section>
 
 <!-- ====== 大胶囊入口 ====== -->
-<div class="big-capsule-group">
-    <div class="big-capsule" id="aiEntry">
-        <div class="big-capsule-icon">🤖</div>
-        <span class="big-capsule-label">AI 助手</span>
-        <div class="big-capsule-badge">NEW</div>
-    </div>
-    <div class="big-capsule" id="driveEntry">
-        <div class="big-capsule-icon">📁</div>
-        <span class="big-capsule-label">我的网盘</span>
-        <div class="big-capsule-badge">云</div>
-    </div>
+
     <div class="capsule-divider"></div>
     <div class="big-capsule" id="goTopCapsule">
         <div class="big-capsule-icon">↑</div>
@@ -377,7 +397,7 @@
     <div class="popup-item"><span class="icon">🐦</span> github主页可留言</div>
 </div>
 
-<!-- ====== 通知弹窗（保留原结构，供 script.js 使用） ====== -->
+<!-- ====== 通知弹窗（供 script.js 使用） ====== -->
 <div class="notif-popup" id="notifPopup">
     <button class="popup-close" id="notifClose">✕</button>
     <div class="popup-title">通知中心</div>
@@ -410,7 +430,7 @@
     </div>
 </div>
 
-<!-- ====== 原认证脚本（保留，勿动） ====== -->
+<!-- ====== 认证脚本 ====== -->
 <script>
     var API_BASE = 'https://webcloud.ziruicloud.de5.net';
 
@@ -558,7 +578,7 @@
 <!-- ====== 新增仪表盘脚本 ====== -->
 <script src="dashboard.js"></script>
 
-<!-- ====== 滚动触发动画（保留） ====== -->
+<!-- ====== 滚动触发动画 ====== -->
 <script>
     (function() {
         var sections = document.querySelectorAll('.section-block, .footer');

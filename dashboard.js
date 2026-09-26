@@ -140,7 +140,9 @@ function buildFilterOptions() {
         var v = this.value;
         var list = document.getElementById('countdownList');
         if (v === 'all') { renderCountdowns(); return; }
-        var filtered = countdownData.filter(function(d) { return String(d['日子']) === v && !isExpired(d); });
+        var filtered = countdownData.filter(function(d) {
+            return String(d['日子']) === v && !isExpired(d);
+        });
         if (filtered.length === 0) {
             list.innerHTML = '<div class="countdown-empty">该日期无倒数日</div>';
             return;
@@ -168,7 +170,7 @@ function loadCountdowns() {
         .catch(function(err) {
             console.error('倒数日加载失败:', err);
             var list = document.getElementById('countdownList');
-            if (list) list.innerHTML = '<div class="countdown-empty">加载失败</div>';
+            if (list) list.innerHTML = '<div class="countdown-empty">加载失败：' + err.message + '</div>';
         });
 }
 
@@ -244,7 +246,7 @@ function loadCountdowns() {
 })();
 
 // ============================================================
-// 4. 最新通知（拉只读 Base 的「最新通知」表，倒序）
+// 4. 最新通知
 // ============================================================
 function loadNotices() {
     atFetch(READ_ONLY_BASE, '最新通知', READ_ONLY_TOKEN)
@@ -378,9 +380,11 @@ function updateAccountWidget() {
 })();
 
 // ============================================================
-// 8. 上/下页切换
+// 8. 上/下页切换（仅电脑版）
 // ============================================================
 (function initPageScroll() {
+    if (window.innerWidth <= 900) return;   // 手机版直接返回
+
     var indicator = document.getElementById('scrollDownIndicator');
     var pageContent = document.getElementById('pageContent');
     var lockUntil = 0;
@@ -439,11 +443,173 @@ function updateAccountWidget() {
 })();
 
 // ============================================================
-// 10. 页面启动
+// 10. 手机版标签栏 + 模拟弹窗（仅手机版）
+// ============================================================
+(function initMobileTabs() {
+    if (window.innerWidth > 900) return;
+
+    var tabBar = document.getElementById('mobileTabBar');
+    var overlay = document.getElementById('mobileModalOverlay');
+    var modalBody = document.getElementById('mobileModalBody');
+    var modalTitle = document.getElementById('mobileModalTitle');
+    var modalClose = document.getElementById('mobileModalClose');
+    if (!tabBar || !overlay) return;
+
+    var targetPanel = {
+        stock:  document.querySelector('.panel-stock'),
+        news:   document.querySelector('.panel-news'),
+        search: document.querySelector('.panel-search-account')
+    };
+
+    var origin = {};
+    Object.keys(targetPanel).forEach(function(key) {
+        var el = targetPanel[key];
+        if (el) origin[key] = { parent: el.parentNode, next: el.nextSibling };
+    });
+
+    function openModal(key, title) {
+        var panel = targetPanel[key];
+        modalTitle.textContent = title;
+        if (!panel) {
+            modalBody.innerHTML =
+                '<div style="text-align:center;padding:40px 0;color:var(--text-muted);">' +
+                '🚧 该功能开发中' +
+                '</div>';
+            overlay.classList.add('show');
+            return;
+        }
+        modalBody.innerHTML = '';
+        modalBody.appendChild(panel);
+        panel.style.display = 'flex';
+        overlay.classList.add('show');
+    }
+
+    function closeModal() {
+        overlay.classList.remove('show');
+        Object.keys(targetPanel).forEach(function(key) {
+            var panel = targetPanel[key];
+            if (!panel) return;
+            var o = origin[key];
+            if (o && o.parent) {
+                if (o.next) o.parent.insertBefore(panel, o.next);
+                else o.parent.appendChild(panel);
+            }
+        });
+    }
+
+    tabBar.addEventListener('click', function(e) {
+        var btn = e.target.closest('.mobile-tab');
+        if (!btn) return;
+        openModal(btn.getAttribute('data-target'), btn.getAttribute('data-title'));
+    });
+
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeModal();
+    });
+})();
+
+
+// ============================================================
+// 12. 最新资讯（uapis.cn 热榜）
+// ============================================================
+var NEWS_PLATFORM = 'weibo';
+var NEWS_LIMIT = 30;
+
+function getNewsClickMode() {
+    return localStorage.getItem('newsClickMode') || 'original';
+}
+function setNewsClickMode(mode) {
+    localStorage.setItem('newsClickMode', mode);
+}
+
+function renderNews(data) {
+    var list = document.getElementById('newsList');
+    if (!list) return;
+    if (!data || !data.list || data.list.length === 0) {
+        list.innerHTML = '<div class="panel-empty">暂无资讯</div>';
+        return;
+    }
+    var items = data.list.slice(0, NEWS_LIMIT);
+    list.innerHTML = items.map(function(item, i) {
+        var idx = i + 1;
+        var idxCls = idx <= 3 ? 'news-index top' : 'news-index';
+        var hot = item.hot_value
+            ? '<span class="news-hot">' + item.hot_value + '</span>'
+            : '';
+        var title = (item.title || '').replace(/"/g, '&quot;');
+        var url = (item.url || '').replace(/"/g, '&quot;');
+        return '<div class="news-item" data-url="' + url + '" data-title="' + title + '">' +
+            '<span class="' + idxCls + '">' + idx + '</span>' +
+            '<span class="news-title">' + (item.title || '') + '</span>' +
+            hot +
+            '</div>';
+    }).join('');
+
+    list.querySelectorAll('.news-item').forEach(function(el) {
+        el.addEventListener('click', function() {
+            var url = this.getAttribute('data-url');
+            var title = this.getAttribute('data-title');
+            var mode = getNewsClickMode();
+            if (mode === 'search') {
+                window.open('https://www.baidu.com/s?wd=' + encodeURIComponent(title), '_blank');
+            } else {
+                if (url) window.open(url, '_blank');
+            }
+        });
+    });
+}
+
+function loadNews(type) {
+    var list = document.getElementById('newsList');
+    if (list) list.innerHTML = '<div class="panel-empty">加载中...</div>';
+    fetch('https://uapis.cn/api/v1/misc/hotboard?type=' + encodeURIComponent(type))
+        .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function(data) {
+            renderNews(data);
+        })
+        .catch(function(err) {
+            console.error('资讯加载失败:', err);
+            var list = document.getElementById('newsList');
+            if (list) list.innerHTML = '<div class="panel-empty">加载失败：' + err.message + '</div>';
+        });
+}
+
+(function initNews() {
+    var sel = document.getElementById('newsPlatformSelect');
+    if (sel) {
+        sel.addEventListener('change', function() {
+            NEWS_PLATFORM = this.value;
+            loadNews(NEWS_PLATFORM);
+        });
+    }
+    var modeToggle = document.getElementById('newsClickModeToggle');
+    if (modeToggle) {
+        var updateLabel = function() {
+            var mode = getNewsClickMode();
+            modeToggle.textContent = mode === 'search'
+                ? '🔍 资讯跳转：搜索标题'
+                : '🔗 资讯跳转：原链接';
+        };
+        updateLabel();
+        modeToggle.addEventListener('click', function() {
+            var mode = getNewsClickMode();
+            setNewsClickMode(mode === 'original' ? 'search' : 'original');
+            updateLabel();
+        });
+    }
+})();
+
+// ============================================================
+// 11. 页面启动
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     loadCountdowns();
     loadNotices();
+    loadNews(NEWS_PLATFORM);   // ← 加这一行
     updateAccountWidget();
 
     window.addEventListener('storage', updateAccountWidget);

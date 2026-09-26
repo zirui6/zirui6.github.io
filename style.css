@@ -1,5 +1,5 @@
 /* ============================================================
-   梓睿官网 - 高级动态主题 v2.0
+   梓睿官网 - 高级动态主题 v1.7.0定稿
    玻璃拟态 + 微交互 + 滚动动画 + 3D悬浮
    ============================================================ */
 
@@ -2429,4 +2429,628 @@ body.show-content .big-capsule-group {
     body.show-content .big-capsule-group {
         bottom: 80px !important;
     }
+}
+
+/* ============================================================
+   v1.8.4 性能优化补丁
+   ============================================================ */
+
+/* 1. 干掉 background-attachment: fixed（最伤的滚动重绘源） */
+body {
+    background-attachment: scroll !important;
+}
+
+/* 2. 大面积元素去掉 backdrop-filter —— 只保留顶栏和弹窗 */
+.panel,
+.section-block,
+.big-capsule,
+.settings-bar,
+.contact-right {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+.panel,
+.section-block {
+    background: rgba(17, 29, 51, 0.92) !important;
+}
+[data-theme="light"] .panel,
+[data-theme="light"] .section-block {
+    background: rgba(255, 255, 255, 0.94) !important;
+}
+
+/* 3. will-change 不常驻（只在动画期间由 JS 临时加，这里只做兜底清理） */
+.page-dashboard,
+.page-content {
+    will-change: auto !important;
+}
+/* 只在切换动画进行时提层 */
+body.show-content .page-dashboard,
+body:not(.show-content) .page-content {
+    will-change: transform !important;
+}
+
+/* 4. transition: all → 具体属性（避免监听全部属性） */
+.section-block {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease !important;
+}
+.log-item {
+    transition: background 0.3s ease, padding-left 0.3s ease !important;
+}
+.article-item {
+    transition: background 0.3s ease, padding-left 0.3s ease, border-color 0.3s ease !important;
+}
+.product-card {
+    transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94),
+                box-shadow 0.4s ease, border-color 0.4s ease !important;
+}
+.contact-left .contact-item {
+    transition: color 0.25s ease, padding-left 0.25s ease !important;
+}
+
+/* 5. 削弱/关掉低价值无限动画 */
+.big-capsule-badge {
+    animation: none !important;
+}
+#aiEntry .big-capsule-icon {
+    animation: none !important;
+}
+.version-section .version-badge::after {
+    animation: none !important;
+}
+.topbar .right .login-btn {
+    animation: none !important;
+}
+
+/* 6. 大胶囊悬停展开：改用 transform 而不是 width */
+.big-capsule {
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.25s ease !important;
+}
+.big-capsule:hover {
+    width: 118px;
+    transform: translateX(-4px) scale(1.05);
+}
+
+/* 7. 减少动效对低端机的压力（可选：系统偏好"减少动态效果"时直接关掉） */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================================
+   v1.8.5 手机版 UI 重排
+   ============================================================ */
+
+/* 默认隐藏手机版专用元素（平板/电脑不显示） */
+.mobile-tab-bar,
+.mobile-modal-overlay {
+    display: none;
+}
+
+@media (max-width: 900px) {
+
+    /* ---- 1. 仪表盘改为纵向流式 ---- */
+    .page-dashboard {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    .dashboard-grid {
+        display: flex !important;
+        flex-direction: column;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 0 0 72px 0 !important;
+        gap: 10px !important;
+    }
+
+    /* ---- 2. 轮播：贴边、无圆角、贴顶 ---- */
+    .panel-carousel {
+        order: 1;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 200px;
+        max-height: 240px;
+    }
+    .panel-carousel .carousel-wrap {
+        border-radius: 0 !important;
+    }
+    .panel-carousel .carousel-slide {
+        padding: 20px 20px !important;
+        min-height: 200px !important;
+    }
+    .panel-carousel .carousel-slide h2 { font-size: 20px !important; }
+    .panel-carousel .carousel-slide p  { font-size: 12px !important; }
+    .panel-carousel .carousel-slide .btn-detail {
+        padding: 8px 18px !important;
+        font-size: 12px !important;
+        margin-top: 12px !important;
+    }
+
+    /* ---- 3. 日历 + 倒数日：并排，等宽 ---- */
+    .panel-calendar {
+        order: 2;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 12px !important;
+        margin: 0 10px !important;
+        border-radius: 14px !important;
+        align-items: start;
+    }
+    .panel-calendar .calendar-box {
+        margin-bottom: 0;
+    }
+    .panel-calendar .countdown-box {
+        min-height: 240px;
+    }
+
+    /* ---- 4. 隐藏桌面专用的 4 个下排 panel（手机版用弹窗显示） ---- */
+    .panel-stock,
+    .panel-news,
+    .panel-notices,
+    .panel-search-account {
+        display: none !important;
+    }
+
+    /* ---- 5. 底部标签栏 ---- */
+    .mobile-tab-bar {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 58px;
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border-color);
+        z-index: 950;
+        padding: 0 6px;
+        gap: 2px;
+    }
+    .mobile-tab {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        font-size: 11px;
+        color: var(--text-muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: color 0.2s;
+        font-family: inherit;
+        padding: 4px 2px;
+        border-radius: 8px;
+    }
+    .mobile-tab:active {
+        background: var(--accent-light);
+        color: var(--accent);
+    }
+
+    /* ---- 6. 模拟弹窗 ---- */
+    .mobile-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 1500;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0;
+    }
+    .mobile-modal-overlay.show {
+        display: flex !important;
+    }
+    .mobile-modal {
+        background: var(--bg-card);
+        border-radius: 18px 18px 0 0;
+        width: 100%;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.4);
+        animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+    }
+    .mobile-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+    .mobile-modal-close {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: var(--text-muted);
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .mobile-modal-close:active {
+        background: var(--bg-body);
+        color: var(--text-primary);
+    }
+    .mobile-modal-body {
+        padding: 16px 18px 24px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        flex: 1;
+        min-height: 0;
+    }
+    /* 弹窗内的 panel 取消边框/背景，融进弹窗 */
+    .mobile-modal-body > .panel {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        min-height: 0 !important;
+    }
+    .mobile-modal-body > .panel .panel-title {
+        display: none;
+    }
+    .mobile-modal-body .stock-list,
+    .mobile-modal-body .news-list {
+        max-height: none;
+    }
+
+    /* ---- 7. 隐藏桌面版大胶囊（手机版用标签栏） ---- */
+    .big-capsule-group {
+        display: none !important;
+    }
+
+    /* ---- 8. 向下箭头位置调整（避开标签栏） ---- */
+    .scroll-down-indicator {
+        bottom: 70px !important;
+    }
+}
+
+/* 平板（>= 768px 且 <= 1024px）保持电脑版布局，只微调间距 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .dashboard-grid {
+        gap: 10px;
+        padding: 12px;
+    }
+}
+
+/* ============================================================
+   v1.8.6 手机版重排：一路滑到底 + 底部标签栏
+   ============================================================ */
+
+.mobile-tab-bar,
+.mobile-modal-overlay {
+    display: none;
+}
+
+@media (max-width: 900px) {
+
+    /* ---- 1. 取消双页面系统，改回自然流式 ---- */
+    html, body {
+        height: auto !important;
+        overflow: auto !important;
+    }
+    body {
+        padding-top: 60px;   /* 给 fixed 顶栏留位置（手机版顶栏 60px） */
+    }
+    .page-dashboard,
+    .page-content {
+        position: static !important;
+        transform: none !important;
+        overflow: visible !important;
+        height: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        will-change: auto !important;
+        transition: none !important;
+    }
+    body.show-content .page-dashboard,
+    body.show-content .page-content {
+        transform: none !important;
+    }
+    .scroll-down-indicator {
+        display: none !important;
+    }
+
+    /* ---- 2. 仪表盘内部改为纵向流式 ---- */
+    .dashboard-grid {
+        display: flex !important;
+        flex-direction: column;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 0 0 84px 0 !important;
+        gap: 10px !important;
+    }
+
+    /* ---- 3. 轮播贴顶、全宽、无圆角 ---- */
+    .panel-carousel {
+        order: 1;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 200px;
+        max-height: 240px;
+    }
+    .panel-carousel .carousel-wrap {
+        border-radius: 0 !important;
+    }
+    .panel-carousel .carousel-slide {
+        padding: 20px 20px !important;
+        min-height: 200px !important;
+    }
+    .panel-carousel .carousel-slide h2 { font-size: 20px !important; }
+    .panel-carousel .carousel-slide p  { font-size: 12px !important; }
+    .panel-carousel .carousel-slide .btn-detail {
+        padding: 8px 18px !important;
+        font-size: 12px !important;
+        margin-top: 12px !important;
+    }
+    .panel-carousel .carousel-slide .slide-badge { font-size: 11px !important; }
+
+    /* ---- 4. 日历 + 倒数日并排 ---- */
+    .panel-calendar {
+        order: 2;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 12px !important;
+        margin: 0 10px !important;
+        border-radius: 14px !important;
+        align-items: start;
+    }
+    .panel-calendar .calendar-box {
+        margin-bottom: 0;
+    }
+    .panel-calendar .countdown-box {
+        min-height: 240px;
+    }
+
+    /* ---- 5. 隐藏桌面用的 4 个下排 panel（改用底部标签弹窗） ---- */
+    .panel-stock,
+    .panel-news,
+    .panel-notices,
+    .panel-search-account {
+        display: none !important;
+    }
+
+    /* ---- 6. 底部标签栏 ---- */
+    .mobile-tab-bar {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 58px;
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border-color);
+        z-index: 950;
+        padding: 0 6px;
+        gap: 2px;
+    }
+    .mobile-tab {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        font-size: 11px;
+        color: var(--text-muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: color 0.2s;
+        font-family: inherit;
+        padding: 4px 2px;
+        border-radius: 8px;
+    }
+    .mobile-tab:active {
+        background: var(--accent-light);
+        color: var(--accent);
+    }
+
+    /* ---- 7. 模拟弹窗 ---- */
+    .mobile-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 1500;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0;
+    }
+    .mobile-modal-overlay.show {
+        display: flex !important;
+    }
+    .mobile-modal {
+        background: var(--bg-card);
+        border-radius: 18px 18px 0 0;
+        width: 100%;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.4);
+        animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+    }
+    .mobile-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+    .mobile-modal-close {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: var(--text-muted);
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .mobile-modal-close:active {
+        background: var(--bg-body);
+        color: var(--text-primary);
+    }
+    .mobile-modal-body {
+        padding: 16px 18px 24px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        flex: 1;
+        min-height: 0;
+    }
+    .mobile-modal-body > .panel {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        min-height: 0 !important;
+        backdrop-filter: none !important;
+    }
+    .mobile-modal-body > .panel .panel-title {
+        display: none;
+    }
+    .mobile-modal-body .stock-list,
+    .mobile-modal-body .news-list {
+        max-height: none;
+    }
+
+    /* ---- 8. 隐藏桌面版大胶囊（手机版用标签栏） ---- */
+    .big-capsule-group {
+        display: none !important;
+    }
+
+    /* ---- 9. 内容页底部给标签栏留位置 ---- */
+    .page-content .footer {
+        padding-bottom: 90px !important;
+    }
+}
+
+/* 平板保持电脑版布局，只微调间距 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .dashboard-grid {
+        gap: 10px;
+        padding: 12px;
+    }
+}
+
+/* ============================================================
+   v1.8.7 最新资讯模块
+   ============================================================ */
+
+/* panel-title 变成左右分布（左标题 + 右下拉） */
+.panel-news .panel-title {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 平台下拉 */
+.news-platform-select {
+    padding: 3px 8px;
+    font-size: 11px;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+}
+
+/* 新闻条 */
+.news-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 4px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s, padding-left 0.2s;
+    border-radius: 4px;
+}
+.news-item:hover {
+    background: var(--accent-light);
+    padding-left: 8px;
+}
+.news-item:last-child {
+    border-bottom: none;
+}
+.news-item .news-index {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+.news-item .news-index.top {
+    color: #ef4444;
+}
+.news-item .news-title {
+    flex: 1;
+    color: var(--text-primary);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+.news-item .news-hot {
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: 4px;
+    white-space: nowrap;
+    line-height: 1.5;
 }
